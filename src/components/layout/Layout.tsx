@@ -70,7 +70,11 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentView = 'invento
             </aside>
 
             {/* Main Content */}
-            <main style={{ flex: 1, padding: '20px', maxWidth: '100%', paddingBottom: '90px' }}>
+            <main
+                key={currentView}
+                className="animate-fade-in"
+                style={{ flex: 1, padding: '20px', maxWidth: '100%', paddingBottom: '90px' }}
+            >
                 {children}
             </main>
 

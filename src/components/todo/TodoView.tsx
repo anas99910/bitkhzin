@@ -127,17 +127,18 @@ export const TodoView: React.FC = () => {
                             {cat}
                         </h3>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                            {items.map(todo => (
+                            {items.map((todo, index) => (
                                 <div
                                     key={todo.id}
-                                    className="glass-panel"
+                                    className="glass-panel list-item-enter tap-scale"
                                     style={{
                                         display: 'flex',
                                         alignItems: 'center',
                                         padding: '12px 16px',
                                         gap: '12px',
                                         transition: 'all 0.2s',
-                                        opacity: todo.completed ? 0.6 : 1,
+                                        opacity: 0, // Handled by animation
+                                        animationDelay: `${index * 50}ms`,
                                         background: todo.completed ? 'rgba(0,0,0,0.02)' : 'var(--glass-bg)'
                                     }}
                                 >

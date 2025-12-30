@@ -41,7 +41,7 @@ export const Button: React.FC<ButtonProps> = ({
 
     return (
         <button
-            className={`${variantClass} ${className}`}
+            className={`${variantClass} tap-scale ${className}`}
             disabled={isLoading || disabled}
             style={{
                 ...getSizeStyle(),
