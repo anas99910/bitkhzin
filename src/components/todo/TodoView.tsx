@@ -29,6 +29,7 @@ export const TodoView: React.FC = () => {
                 category: todo.category,
                 quantity: todo.quantity,
                 location: 'Kitchen', // Default
+                stockLevel: 'full',
                 value: 0
             });
             deleteTodo(todo.id);

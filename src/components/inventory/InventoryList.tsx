@@ -179,13 +179,4 @@ export const InventoryList: React.FC<InventoryListProps> = ({ items, onAddItem, 
     );
 };
 
-const getCategoryEmoji = (category: string) => {
-    switch (category) {
-        case 'Electronics': return '💻';
-        case 'Furniture': return '🛋️';
-        case 'Clothing': return '👕';
-        case 'Kitchen': return '🍳';
-        case 'Tools': return '🔧';
-        default: return '📦';
-    }
-};
+// Removed getCategoryEmoji function
