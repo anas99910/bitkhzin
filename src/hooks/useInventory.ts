@@ -43,7 +43,16 @@ export const useInventory = () => {
     }, [user]);
 
     const addItem = async (newItem: Omit<InventoryItem, 'id' | 'createdAt' | 'updatedAt'>, imageUrl?: string) => {
-        if (!user) return;
+        if (!user) {
+            alert("You must be logged in to add items.");
+            return;
+        }
+
+        // Check for storage limit (approx 1MB)
+        if (imageUrl && imageUrl.length > 1000000) {
+            alert("Image is too large! Please try a smaller photo.");
+            return;
+        }
 
         // Optimistic Update
         const tempId = Date.now().toString();
@@ -66,10 +75,18 @@ export const useInventory = () => {
                 createdAt: Date.now(),
                 updatedAt: Date.now()
             });
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error adding item:", error);
             // Rollback
             setItems(prev => prev.filter(item => item.id !== tempId));
+
+            if (error.code === 'resource-exhausted') {
+                alert("Storage limit reached! Image might be too big.");
+            } else if (error.code === 'permission-denied') {
+                alert("Permission denied! Check your login.");
+            } else {
+                alert(`Failed to save item: ${error.message}`);
+            }
             throw error;
         }
     };
