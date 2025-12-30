@@ -1,5 +1,6 @@
 import React from 'react';
 import { Package, Settings, LogOut, CheckSquare, Box } from 'lucide-react';
+import { auth } from '../../lib/firebase';
 
 interface LayoutProps {
     children: React.ReactNode;
@@ -59,7 +60,12 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentView = 'invento
                 </nav>
 
                 <div style={{ paddingTop: '20px', borderTop: '1px solid var(--glass-border)' }}>
-                    <NavItem icon={<LogOut size={20} />} label="Sign Out" />
+                    <NavItem
+                        icon={<LogOut size={20} />}
+                        label="Sign Out"
+                        onClick={() => auth.signOut()}
+                        active={false}
+                    />
                 </div>
             </aside>
 

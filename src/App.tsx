@@ -6,14 +6,18 @@ import { TodoView } from './components/todo/TodoView';
 import { useInventory } from './hooks/useInventory';
 import { Card } from './components/ui/Card';
 import { Button } from './components/ui/Button';
-import { Moon, Sun, Download } from 'lucide-react';
+import { Moon, Sun, Download, LogOut, Loader2 } from 'lucide-react';
 import { useInstallPrompt } from './hooks/useInstallPrompt';
+import { useAuth } from './context/AuthContext';
+import { AuthScreen } from './components/auth/AuthScreen';
+import { auth } from './lib/firebase';
 
 function App() {
   const [view, setView] = useState<'inventory' | 'todo' | 'settings' | 'add'>('inventory');
   const [darkMode, setDarkMode] = useState(false);
   const { items, addItem, deleteItem } = useInventory();
   const { isInstallable, promptToInstall } = useInstallPrompt();
+  const { user, loading } = useAuth();
 
   // Dark Mode Effect
   useEffect(() => {
@@ -26,6 +30,18 @@ function App() {
       if (themeColorMeta) themeColorMeta.setAttribute('content', '#f9fafb');
     }
   }, [darkMode]);
+
+  if (loading) {
+    return (
+      <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Loader2 className="animate-spin" size={48} color="hsl(var(--color-primary))" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <AuthScreen />;
+  }
 
   const renderContent = () => {
     switch (view) {
@@ -60,9 +76,21 @@ function App() {
               <hr style={{ margin: '16px 0', borderColor: 'var(--glass-border)', opacity: 0.3 }} />
 
               <div style={{ opacity: 0.6 }}>
-                <p>App Version: 1.0.1</p>
-                <p>Sync Status: Local Storage</p>
+                <p>App Version: 1.1.0</p>
+                <p>Account: {user.email}</p>
+                <p>Sync Status: Cloud (Firebase)</p>
               </div>
+
+              <hr style={{ margin: '16px 0', borderColor: 'var(--glass-border)', opacity: 0.3 }} />
+
+              <Button
+                variant="secondary"
+                onClick={() => auth.signOut()}
+                style={{ width: '100%', display: 'flex', justifyContent: 'center', gap: '8px', color: '#f87171', borderColor: 'rgba(248, 113, 113, 0.3)' }}
+              >
+                <LogOut size={18} />
+                Log Out
+              </Button>
 
               {/* PWA Install Button */}
               {isInstallable && (

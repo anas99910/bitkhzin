@@ -50,7 +50,8 @@ export const Button: React.FC<ButtonProps> = ({
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '0.5rem'
+                gap: '0.5rem',
+                ...props.style
             }}
             {...props}
         >

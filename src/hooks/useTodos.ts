@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { db } from '../lib/firebase';
-import { collection, onSnapshot, addDoc, deleteDoc, updateDoc, doc, query, orderBy } from 'firebase/firestore';
+import { collection, onSnapshot, addDoc, deleteDoc, updateDoc, doc, query, orderBy, where } from 'firebase/firestore';
+import { useAuth } from '../context/AuthContext';
 
 export interface TodoItem {
     id: string;
@@ -11,9 +12,19 @@ export interface TodoItem {
 
 export const useTodos = () => {
     const [todos, setTodos] = useState<TodoItem[]>([]);
+    const { user } = useAuth();
 
     useEffect(() => {
-        const q = query(collection(db, 'todos'), orderBy('createdAt', 'desc'));
+        if (!user) {
+            setTodos([]);
+            return;
+        }
+
+        const q = query(
+            collection(db, 'todos'),
+            where('userId', '==', user.uid),
+            orderBy('createdAt', 'desc')
+        );
 
         const unsubscribe = onSnapshot(q, (snapshot) => {
             const newTodos = snapshot.docs.map(doc => ({
@@ -24,13 +35,14 @@ export const useTodos = () => {
         });
 
         return () => unsubscribe();
-    }, []);
+    }, [user]);
 
     const addTodo = async (text: string) => {
-        if (!text.trim()) return;
+        if (!text.trim() || !user) return;
         try {
             await addDoc(collection(db, 'todos'), {
                 text,
+                userId: user.uid,
                 completed: false,
                 createdAt: Date.now(),
             });
