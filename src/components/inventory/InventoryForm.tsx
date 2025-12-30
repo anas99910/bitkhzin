@@ -1,6 +1,11 @@
+import React, { useState, useRef } from 'react';
+import { Loader2, ScanBarcode, ImageIcon, X } from 'lucide-react';
+import { InventoryItem, DEFAULT_CATEGORIES, DEFAULT_LOCATIONS } from '../../types/inventory';
+import { Button } from '../ui/Button';
+import { Card } from '../ui/Card';
+import { Toast } from '../ui/Toast';
+import { BarcodeScanner } from './BarcodeScanner';
 import { compressImage } from '../../utils/imageUtils';
-
-// ... imports
 
 interface InventoryFormProps {
     onSubmit: (item: Omit<InventoryItem, 'id' | 'createdAt' | 'updatedAt'>, imageUrl?: string) => void;
@@ -8,10 +13,49 @@ interface InventoryFormProps {
 }
 
 export const InventoryForm: React.FC<InventoryFormProps> = ({ onSubmit, onCancel }) => {
-    // ... items
+    // State
+    const [name, setName] = useState('');
+    const [category, setCategory] = useState(DEFAULT_CATEGORIES[0]);
+    const [location, setLocation] = useState(DEFAULT_LOCATIONS[0]);
+    const [quantity, setQuantity] = useState(1);
+    const [value, setValue] = useState('');
+    const [barcode, setBarcode] = useState('');
+    const [selectedImage, setSelectedImage] = useState<File | null>(null);
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+    const [showScanner, setShowScanner] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [toast, setToast] = useState<{ show: boolean; msg: string; type: 'success' | 'error' }>({
+        show: false,
+        msg: '',
+        type: 'success'
+    });
 
-    // ... handleImageSelect, etc
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const showToast = (msg: string, type: 'success' | 'error' = 'success') => {
+        setToast({ show: true, msg, type });
+        setTimeout(() => setToast(prev => ({ ...prev, show: false })), 3000);
+    };
+
+    const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setSelectedImage(file);
+            setPreviewUrl(URL.createObjectURL(file));
+        }
+    };
+
+    const removeImage = () => {
+        setSelectedImage(null);
+        setPreviewUrl(null);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+    };
+
+    const handleScanResult = (result: string) => {
+        setBarcode(result);
+        setShowScanner(false);
+        showToast('Barcode scanned successfully!');
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -44,8 +88,8 @@ export const InventoryForm: React.FC<InventoryFormProps> = ({ onSubmit, onCancel
         <div className="animate-slide-up">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                 <h2 className="text-title" style={{ margin: 0 }}>Add New Item</h2>
-                <Button variant="secondary" onClick={() => setShowScanner(true)} disabled={isFetchingInfo}>
-                    {isFetchingInfo ? <Loader2 size={18} className="animate-spin" /> : <ScanBarcode size={18} />}
+                <Button variant="secondary" onClick={() => setShowScanner(true)}>
+                    <ScanBarcode size={18} />
                     <span style={{ marginLeft: '8px' }}>Scan Barcode</span>
                 </Button>
             </div>
@@ -190,7 +234,9 @@ export const InventoryForm: React.FC<InventoryFormProps> = ({ onSubmit, onCancel
 
                     <div style={{ display: 'flex', gap: '12px', marginTop: '24px', justifyContent: 'flex-end' }}>
                         <Button type="button" variant="secondary" onClick={onCancel}>Cancel</Button>
-                        <Button type="submit">Save Item</Button>
+                        <Button type="submit" disabled={isSubmitting}>
+                            {isSubmitting ? <Loader2 className="animate-spin" size={18} /> : 'Save Item'}
+                        </Button>
                     </div>
                 </form>
             </Card>
