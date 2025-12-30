@@ -1,10 +1,7 @@
 import { useState, useEffect } from 'react';
-import { InventoryItem, DEFAULT_CATEGORIES, DEFAULT_LOCATIONS } from '../types/inventory';
+import { InventoryItem } from '../types/inventory';
 import { db } from '../lib/firebase';
 import { collection, onSnapshot, addDoc, deleteDoc, doc, query, orderBy } from 'firebase/firestore';
-
-// Fallback data for initial load/offline if needed, but we rely on Firebase persistence
-const DEFAULT_ITEMS: InventoryItem[] = [];
 
 export const useInventory = () => {
     const [items, setItems] = useState<InventoryItem[]>([]);
