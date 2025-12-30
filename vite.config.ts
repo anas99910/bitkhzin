@@ -11,7 +11,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['crate.svg'],
+      includeAssets: ['favicon.png', 'apple-touch-icon.png', 'mask-icon.svg'],
       scope: './',
       manifest: {
         name: 'My Household Inventory',
@@ -23,20 +23,21 @@ export default defineConfig({
         background_color: '#ffffff',
         icons: [
           {
-            src: 'crate.svg',
-            sizes: 'any',
-            type: 'image/svg+xml',
-            purpose: 'any maskable'
-          },
-          {
-            src: 'crate.svg', // Fallback for 192 (some browsers might prefer png, but svg is widely supported now)
+            src: 'pwa-192x192.png',
             sizes: '192x192',
-            type: 'image/svg+xml'
+            type: 'image/png'
           },
           {
-            src: 'crate.svg',
+            src: 'pwa-512x512.png',
             sizes: '512x512',
-            type: 'image/svg+xml'
+            type: 'image/png',
+            purpose: 'any'
+          },
+          {
+            src: 'pwa-512x512.png', // Using 512 as maskable for now since we overwrote the file
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable'
           }
         ]
       }

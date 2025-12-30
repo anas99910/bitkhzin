@@ -1,5 +1,5 @@
 import React from 'react';
-import { Package, Settings, LogOut, CheckSquare } from 'lucide-react';
+import { Package, Settings, LogOut, CheckSquare, Box } from 'lucide-react';
 
 interface LayoutProps {
     children: React.ReactNode;
@@ -32,7 +32,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentView = 'invento
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         color: 'white', fontWeight: 'bold'
                     }}>
-                        HI
+                        <Box size={24} strokeWidth={2.5} />
                     </div>
                     <h1 style={{ fontSize: '1.25rem', fontWeight: '800' }}>Bit Khzin</h1>
                 </div>
