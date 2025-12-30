@@ -2,7 +2,9 @@ import React from 'react';
 import { InventoryItem } from '../../types/inventory';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
-import { Plus, Trash2 } from 'lucide-react'; // Removed Search, Edit2 to fix lint
+import { Plus, Trash2, ShoppingCart } from 'lucide-react';
+import { useTodos } from '../../hooks/useTodos';
+import { Toast } from '../ui/Toast';
 
 interface InventoryListProps {
     items: InventoryItem[];
@@ -12,17 +14,19 @@ interface InventoryListProps {
 }
 
 export const InventoryList: React.FC<InventoryListProps> = ({ items, onAddItem, onDeleteItem }) => {
+    const { addTodo } = useTodos();
+    const [toast, setToast] = React.useState<{ show: boolean; msg: string }>({ show: false, msg: '' });
+
+    const handleAddToShoppingList = (item: InventoryItem) => {
+        addTodo(item.name, 1, item.category);
+        setToast({ show: true, msg: `Added ${item.name} to Shopping List` });
+        setTimeout(() => setToast({ show: false, msg: '' }), 3000);
+    };
+
     return (
         <div className="animate-fade-in">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                <h2 className="text-title" style={{ margin: 0 }}>My Items</h2>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '12px' }}>
                 <div style={{ display: 'flex', gap: '12px' }}>
-                    {/* Search Bar - Visual only for now - Hiding until implemented to avoid lint error */}
-                    {/* <div style={{ position: 'relative', display: 'none' }} className="desktop-only">
-             <input placeholder="Search..." ... />
-             <Search ... />
-           </div> */}
-
                     <Button onClick={onAddItem}>
                         <Plus size={18} /> <span className="desktop-only">Add Item</span>
                     </Button>
@@ -50,19 +54,33 @@ export const InventoryList: React.FC<InventoryListProps> = ({ items, onAddItem, 
                                     background: 'rgba(0,0,0,0.05)',
                                     display: 'flex',
                                     alignItems: 'center',
-                                    justifyContent: 'center'
+                                    justifyContent: 'center',
+                                    position: 'relative'
                                 }}>
-                                    {item.imageUrl ? (
-                                        <img
-                                            src={item.imageUrl}
-                                            alt={item.name}
-                                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                        />
-                                    ) : (
-                                        <span style={{ fontSize: '3rem' }}>
-                                            {getCategoryEmoji(item.category)}
-                                        </span>
-                                    )}
+                                    <span style={{ fontSize: '3rem' }}>
+                                        {getCategoryEmoji(item.category)}
+                                    </span>
+
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); handleAddToShoppingList(item); }}
+                                        style={{
+                                            position: 'absolute',
+                                            top: '8px',
+                                            right: '8px',
+                                            background: 'var(--glass-bg)',
+                                            border: '1px solid var(--glass-border)',
+                                            borderRadius: '50%',
+                                            width: '32px',
+                                            height: '32px',
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                            cursor: 'pointer',
+                                            color: 'hsl(var(--color-primary))',
+                                            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                                        }}
+                                        title="Add to Shopping List"
+                                    >
+                                        <ShoppingCart size={16} />
+                                    </button>
                                 </div>
                                 <div style={{ flex: 1, marginBottom: '12px' }}>
                                     <h3 style={{ fontWeight: 'bold', fontSize: '1.1rem', marginBottom: '4px' }}>{item.name}</h3>
@@ -88,6 +106,13 @@ export const InventoryList: React.FC<InventoryListProps> = ({ items, onAddItem, 
                     ))}
                 </div>
             )}
+
+            <Toast
+                isVisible={toast.show}
+                message={toast.msg}
+                type="success"
+                onClose={() => setToast({ show: false, msg: '' })}
+            />
         </div>
     );
 };

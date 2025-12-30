@@ -1,5 +1,5 @@
 import React from 'react';
-import { Package, Settings, LogOut, CheckSquare, Box } from 'lucide-react';
+import { Package, Settings, LogOut, ShoppingCart, Box } from 'lucide-react';
 import { auth } from '../../lib/firebase';
 
 interface LayoutProps {
@@ -46,8 +46,8 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentView = 'invento
                         onClick={() => onNavigate?.('inventory')}
                     />
                     <NavItem
-                        icon={<CheckSquare size={20} />}
-                        label="To-Do"
+                        icon={<ShoppingCart size={20} />}
+                        label="Shopping List"
                         active={currentView === 'todo'}
                         onClick={() => onNavigate?.('todo')}
                     />
@@ -75,46 +75,44 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentView = 'invento
             </main>
 
             {/* Bottom Nav - Mobile */}
-            <nav
-                className="mobile-nav glass-panel mobile-only"
-                style={{
-                    position: 'fixed',
-                    bottom: '0',
-                    left: '0',
-                    right: '0',
-                    padding: '12px 20px',
-                    display: 'flex',
-                    justifyContent: 'space-around',
-                    zIndex: 50,
-                    background: 'var(--glass-bg)',
-                    backdropFilter: 'blur(20px)',
-                    borderTop: '1px solid var(--glass-border)',
-                    borderRadius: '20px 20px 0 0',
-                    boxShadow: '0 -4px 20px rgba(0,0,0,0.1)'
-                }}
-            >
-                <NavItem
-                    icon={<Package size={24} />}
-                    label="Inventory"
-                    active={currentView === 'inventory'}
-                    onClick={() => onNavigate?.('inventory')}
-                    vertical
-                />
-                <NavItem
-                    icon={<CheckSquare size={24} />}
-                    label="To-Do"
-                    active={currentView === 'todo'}
-                    onClick={() => onNavigate?.('todo')}
-                    vertical
-                />
-                <NavItem
-                    icon={<Settings size={24} />}
-                    label="Settings"
-                    active={currentView === 'settings'}
-                    onClick={() => onNavigate?.('settings')}
-                    vertical
-                />
-            </nav>
+            <div className="mobile-nav-container mobile-only" style={{ position: 'fixed', bottom: 0, zIndex: 50 }}>
+                <ul className="nav-list" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', width: '100%' }}>
+
+                    <li className={`nav-item ${currentView === 'inventory' ? 'active' : ''}`} style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+                        <button className={`nav-link ${currentView === 'inventory' ? 'active' : ''}`} onClick={() => onNavigate?.('inventory')}>
+                            <span className="icon">
+                                <Package size={24} />
+                            </span>
+                            <span className="text">Pantry</span>
+                        </button>
+                    </li>
+
+                    <li className={`nav-item ${currentView === 'todo' ? 'active' : ''}`} style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+                        <button className={`nav-link ${currentView === 'todo' ? 'active' : ''}`} onClick={() => onNavigate?.('todo')}>
+                            <span className="icon">
+                                <ShoppingCart size={24} />
+                            </span>
+                            <span className="text">Shop</span>
+                        </button>
+                    </li>
+
+                    <li className={`nav-item ${currentView === 'settings' ? 'active' : ''}`} style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+                        <button className={`nav-link ${currentView === 'settings' ? 'active' : ''}`} onClick={() => onNavigate?.('settings')}>
+                            <span className="icon">
+                                <Settings size={24} />
+                            </span>
+                            <span className="text">Settings</span>
+                        </button>
+                    </li>
+
+                    <div
+                        className="indicator"
+                        style={{
+                            left: `calc(100% / 3 * ${currentView === 'inventory' ? 0 : currentView === 'todo' ? 1 : 2} + 100% / 6 - 35px)`
+                        }}
+                    />
+                </ul>
+            </div>
 
             {/* Mobile/Desktop Visibility Utility Styles */}
             <style>{`

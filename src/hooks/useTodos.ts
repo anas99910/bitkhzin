@@ -3,15 +3,17 @@ import { db } from '../lib/firebase';
 import { collection, onSnapshot, addDoc, deleteDoc, updateDoc, doc, query, where } from 'firebase/firestore';
 import { useAuth } from '../context/AuthContext';
 
-export interface TodoItem {
+export interface ShoppingItem {
     id: string;
     text: string;
     completed: boolean;
+    quantity: number;
+    category: string;
     createdAt: number;
 }
 
 export const useTodos = () => {
-    const [todos, setTodos] = useState<TodoItem[]>([]);
+    const [todos, setTodos] = useState<ShoppingItem[]>([]);
     const { user } = useAuth();
 
     useEffect(() => {
@@ -20,9 +22,8 @@ export const useTodos = () => {
             return;
         }
 
-        // Removed orderBy to avoid missing index issues. We sort client-side below.
         const q = query(
-            collection(db, 'todos'),
+            collection(db, 'shopping-list'), // Changed collection
             where('userId', '==', user.uid)
         );
 
@@ -30,44 +31,48 @@ export const useTodos = () => {
             const newTodos = snapshot.docs.map(doc => ({
                 id: doc.id,
                 ...doc.data()
-            })) as TodoItem[];
+            })) as ShoppingItem[];
 
             // Sort client-side: Newest first
             newTodos.sort((a, b) => b.createdAt - a.createdAt);
 
             setTodos(newTodos);
         }, (error) => {
-            console.error("Error fetching todos:", error);
+            console.error("Error fetching shopping list:", error);
         });
 
         return () => unsubscribe();
     }, [user]);
 
-    const addTodo = async (text: string) => {
+    const addTodo = async (text: string, quantity: number = 1, category: string = 'Other') => {
         if (!text.trim() || !user) return;
 
         // Optimistic Update
         const tempId = Date.now().toString();
-        const newTodo: TodoItem = {
+        const newTodo: ShoppingItem = {
             id: tempId,
             text,
             completed: false,
+            quantity,
+            category,
             createdAt: Date.now(),
         };
         setTodos(prev => [newTodo, ...prev]);
 
         try {
-            await addDoc(collection(db, 'todos'), {
+            await addDoc(collection(db, 'shopping-list'), {
                 text,
                 userId: user.uid,
                 completed: false,
+                quantity,
+                category,
                 createdAt: Date.now(),
             });
         } catch (error) {
-            console.error("Error adding todo:", error);
+            console.error("Error adding item:", error);
             // Rollback on error
             setTodos(prev => prev.filter(t => t.id !== tempId));
-            alert("Failed to add task. Please check your connection.");
+            alert("Failed to add item. Please check your connection.");
         }
     };
 
@@ -81,11 +86,11 @@ export const useTodos = () => {
         ));
 
         try {
-            await updateDoc(doc(db, 'todos', id), {
+            await updateDoc(doc(db, 'shopping-list', id), {
                 completed: !todo.completed
             });
         } catch (error) {
-            console.error("Error toggling todo:", error);
+            console.error("Error toggling item:", error);
             // Rollback
             setTodos(prev => prev.map(t =>
                 t.id === id ? { ...t, completed: todo.completed } : t
@@ -98,21 +103,19 @@ export const useTodos = () => {
         if (!todoBackup) return;
 
         // Optimistic Update
-        console.log("Optimistically deleting todo:", id);
         setTodos(prev => prev.filter(t => t.id !== id));
 
         try {
-            await deleteDoc(doc(db, 'todos', id));
-            console.log("Todo deleted successfully from server:", id);
+            await deleteDoc(doc(db, 'shopping-list', id));
         } catch (error) {
-            console.error("Error deleting todo:", error);
+            console.error("Error deleting item:", error);
             // Rollback
             setTodos(prev => {
                 const newTodos = [...prev, todoBackup];
                 newTodos.sort((a, b) => b.createdAt - a.createdAt);
                 return newTodos;
             });
-            alert("Failed to delete task. Check console for details.");
+            alert("Failed to delete item. Check console for details.");
         }
     };
 

@@ -42,15 +42,9 @@ export const useInventory = () => {
         return () => unsubscribe();
     }, [user]);
 
-    const addItem = async (newItem: Omit<InventoryItem, 'id' | 'createdAt' | 'updatedAt'>, imageUrl?: string) => {
+    const addItem = async (newItem: Omit<InventoryItem, 'id' | 'createdAt' | 'updatedAt'>) => {
         if (!user) {
             alert("You must be logged in to add items.");
-            return;
-        }
-
-        // Check for storage limit (approx 1MB)
-        if (imageUrl && imageUrl.length > 1000000) {
-            alert("Image is too large! Please try a smaller photo.");
             return;
         }
 
@@ -60,7 +54,6 @@ export const useInventory = () => {
             ...newItem,
             id: tempId,
             userId: user.uid,
-            imageUrl: imageUrl || newItem.imageUrl,
             createdAt: Date.now(),
             updatedAt: Date.now()
         };
@@ -71,7 +64,6 @@ export const useInventory = () => {
             await addDoc(collection(db, 'inventory'), {
                 ...newItem,
                 userId: user.uid,
-                imageUrl: imageUrl || newItem.imageUrl,
                 createdAt: Date.now(),
                 updatedAt: Date.now()
             });
@@ -80,9 +72,7 @@ export const useInventory = () => {
             // Rollback
             setItems(prev => prev.filter(item => item.id !== tempId));
 
-            if (error.code === 'resource-exhausted') {
-                alert("Storage limit reached! Image might be too big.");
-            } else if (error.code === 'permission-denied') {
+            if (error.code === 'permission-denied') {
                 alert("Permission denied! Check your login.");
             } else {
                 alert(`Failed to save item: ${error.message}`);
