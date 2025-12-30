@@ -5,17 +5,19 @@ import path from 'path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  base: '/bitkhzin/',
   plugins: [
     react(),
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
+      scope: '/bitkhzin/',
       manifest: {
         name: 'My Household Inventory',
         short_name: 'Inventory',
         description: 'Premium Household Inventory Management',
         theme_color: '#ffffff',
-        start_url: '/',
+        start_url: '/bitkhzin/',
         display: 'standalone',
         background_color: '#ffffff',
         icons: [
