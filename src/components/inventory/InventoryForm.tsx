@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { InventoryItem, DEFAULT_CATEGORIES, DEFAULT_LOCATIONS } from '../../types/inventory';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
+import { ScanBarcode, Loader2 } from 'lucide-react';
+import { BarcodeScanner } from './BarcodeScanner';
 
 interface InventoryFormProps {
     onSubmit: (item: Omit<InventoryItem, 'id' | 'createdAt' | 'updatedAt'>) => void;
@@ -14,6 +16,46 @@ export const InventoryForm: React.FC<InventoryFormProps> = ({ onSubmit, onCancel
     const [location, setLocation] = useState(DEFAULT_LOCATIONS[0]);
     const [quantity, setQuantity] = useState(1);
     const [value, setValue] = useState('');
+    const [showScanner, setShowScanner] = useState(false);
+    const [isFetchingInfo, setIsFetchingInfo] = useState(false);
+
+    const fetchProductInfo = async (barcode: string) => {
+        setIsFetchingInfo(true);
+        try {
+            const response = await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`);
+            const data = await response.json();
+
+            if (data.status === 1 && data.product) {
+                const product = data.product;
+                setName(product.product_name || '');
+                // Try to guess category
+                const categories = product.categories || '';
+
+                // Simple heuristic for category mapping
+                if (categories.toLowerCase().includes('electronic') || categories.toLowerCase().includes('device')) {
+                    setCategory('Electronics');
+                } else if (categories.toLowerCase().includes('kitchen') || categories.toLowerCase().includes('food') || categories.toLowerCase().includes('cooking')) {
+                    setCategory('Kitchen');
+                } else {
+                    setCategory('Other');
+                }
+
+                // If no value set, maybe we can't really guess price, so leave it empty
+            } else {
+                alert('Product not found in database, but barcode scanned successfully.');
+            }
+        } catch (error) {
+            console.error("Error fetching product info:", error);
+            alert('Failed to fetch product info. Please try entering details manually.');
+        } finally {
+            setIsFetchingInfo(false);
+        }
+    };
+
+    const handleScanResult = (result: string) => {
+        setShowScanner(false);
+        fetchProductInfo(result);
+    };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -31,56 +73,88 @@ export const InventoryForm: React.FC<InventoryFormProps> = ({ onSubmit, onCancel
 
     return (
         <div className="animate-slide-up">
-            <h2 className="text-title">Add New Item</h2>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <h2 className="text-title" style={{ margin: 0 }}>Add New Item</h2>
+                <Button variant="secondary" onClick={() => setShowScanner(true)} disabled={isFetchingInfo}>
+                    {isFetchingInfo ? <Loader2 size={18} className="animate-spin" /> : <ScanBarcode size={18} />}
+                    <span style={{ marginLeft: '8px' }}>Scan Barcode</span>
+                </Button>
+            </div>
+
+            {showScanner && (
+                <BarcodeScanner
+                    onResult={handleScanResult}
+                    onClose={() => setShowScanner(false)}
+                />
+            )}
+
             <Card>
                 <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                    <label style={labelStyle}>Item Name</label>
-                    <input
-                        required
-                        type="text"
-                        value={name}
-                        onChange={e => setName(e.target.value)}
-                        className="glass-panel"
-                        style={{ padding: '12px', background: 'rgba(255,255,255,0.5)' }}
-                        placeholder="e.g. Sony Bravia TV"
-                    />
-                </div>
-
-                <div className="form-row">
                     <div style={fieldStyle}>
-                        <label style={labelStyle}>Category</label>
-                        <select
-                            value={category}
-                            onChange={e => setCategory(e.target.value as any)}
-                            className="glass-panel"
-                            style={{ padding: '12px', background: 'rgba(255,255,255,0.5)', width: '100%' }}
-                        >
-                            {DEFAULT_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-                        </select>
-                    </div>
-
-                    <div style={fieldStyle}>
-                        <label style={labelStyle}>Location</label>
-                        <select
-                            value={location}
-                            onChange={e => setLocation(e.target.value as any)}
-                            className="glass-panel"
-                            style={{ padding: '12px', background: 'rgba(255,255,255,0.5)', width: '100%' }}
-                        >
-                            {DEFAULT_LOCATIONS.map(l => <option key={l} value={l}>{l}</option>)}
-                        </select>
-                    </div>
-                </div>
-
-                <div className="form-row">
-                    <div style={fieldStyle}>
-                        <label style={labelStyle}>Quantity</label>
+                        <label style={labelStyle}>Item Name</label>
                         <input
-                            type="number"
-                            min="1"
-                            value={quantity}
-                            onChange={e => setQuantity(parseInt(e.target.value))}
-                </div>
+                            required
+                            type="text"
+                            value={name}
+                            onChange={e => setName(e.target.value)}
+                            className="glass-panel"
+                            style={{ padding: '12px', background: 'rgba(255,255,255,0.5)' }}
+                            placeholder="e.g. Sony Bravia TV"
+                        />
+                    </div>
+
+                    <div className="form-row">
+                        <div style={fieldStyle}>
+                            <label style={labelStyle}>Category</label>
+                            <select
+                                value={category}
+                                onChange={e => setCategory(e.target.value as any)}
+                                className="glass-panel"
+                                style={{ padding: '12px', background: 'rgba(255,255,255,0.5)', width: '100%' }}
+                            >
+                                {DEFAULT_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                            </select>
+                        </div>
+
+                        <div style={fieldStyle}>
+                            <label style={labelStyle}>Location</label>
+                            <select
+                                value={location}
+                                onChange={e => setLocation(e.target.value as any)}
+                                className="glass-panel"
+                                style={{ padding: '12px', background: 'rgba(255,255,255,0.5)', width: '100%' }}
+                            >
+                                {DEFAULT_LOCATIONS.map(l => <option key={l} value={l}>{l}</option>)}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div className="form-row">
+                        <div style={fieldStyle}>
+                            <label style={labelStyle}>Quantity</label>
+                            <input
+                                type="number"
+                                min="1"
+                                value={quantity}
+                                onChange={e => setQuantity(parseInt(e.target.value))}
+                                className="glass-panel"
+                                style={{ padding: '12px', background: 'rgba(255,255,255,0.5)', width: '100%' }}
+                            />
+                        </div>
+                        <div style={fieldStyle}>
+                            <label style={labelStyle}>Value ($)</label>
+                            <input
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                value={value}
+                                onChange={e => setValue(e.target.value)}
+                                className="glass-panel"
+                                style={{ padding: '12px', background: 'rgba(255,255,255,0.5)', width: '100%' }}
+                                placeholder="0.00"
+                            />
+                        </div>
+                    </div>
 
                     <div style={{ display: 'flex', gap: '12px', marginTop: '24px', justifyContent: 'flex-end' }}>
                         <Button type="button" variant="secondary" onClick={onCancel}>Cancel</Button>
@@ -88,5 +162,6 @@ export const InventoryForm: React.FC<InventoryFormProps> = ({ onSubmit, onCancel
                     </div>
                 </form>
             </Card>
-            );
+        </div>
+    );
 };

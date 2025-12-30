@@ -67,6 +67,7 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  padding-top: env(safe-area-inset-top);
 }
 
 /* Dark Mode Body Support */
