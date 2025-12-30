@@ -6,12 +6,14 @@ import { TodoView } from './components/todo/TodoView';
 import { useInventory } from './hooks/useInventory';
 import { Card } from './components/ui/Card';
 import { Button } from './components/ui/Button';
-import { Moon, Sun } from 'lucide-react';
+import { Moon, Sun, Download } from 'lucide-react';
+import { useInstallPrompt } from './hooks/useInstallPrompt';
 
 function App() {
   const [view, setView] = useState<'inventory' | 'todo' | 'settings' | 'add'>('inventory');
   const [darkMode, setDarkMode] = useState(false);
   const { items, addItem, deleteItem } = useInventory();
+  const { isInstallable, promptToInstall } = useInstallPrompt();
 
   // Dark Mode Effect
   useEffect(() => {
@@ -58,6 +60,17 @@ function App() {
                 <p>App Version: 1.0.1</p>
                 <p>Sync Status: Local Storage</p>
               </div>
+
+              {/* PWA Install Button */}
+              {isInstallable && (
+                <>
+                  <hr style={{ margin: '16px 0', borderColor: 'var(--glass-border)', opacity: 0.3 }} />
+                  <Button onClick={promptToInstall} style={{ width: '100%', display: 'flex', justifyContent: 'center', gap: '8px' }}>
+                    <Download size={18} />
+                    Install App
+                  </Button>
+                </>
+              )}
             </Card>
           </div>
         );
