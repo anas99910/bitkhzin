@@ -10,6 +10,7 @@ export interface InventoryItem {
     description?: string;
     barcode?: string;
     userId?: string;
+    householdId?: string;
     createdAt: number;
     updatedAt: number;
 }

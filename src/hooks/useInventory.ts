@@ -7,10 +7,10 @@ import { useAuth } from '../context/AuthContext';
 export const useInventory = () => {
     const [items, setItems] = useState<InventoryItem[]>([]);
     const [loading, setLoading] = useState(true);
-    const { user } = useAuth();
+    const { user, userProfile } = useAuth();
 
     useEffect(() => {
-        if (!user) {
+        if (!user || !userProfile?.householdId) {
             setItems([]);
             setLoading(false);
             return;
@@ -18,7 +18,7 @@ export const useInventory = () => {
 
         const q = query(
             collection(db, 'inventory'),
-            where('userId', '==', user.uid)
+            where('householdId', '==', userProfile.householdId)
         );
 
         const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -37,10 +37,11 @@ export const useInventory = () => {
         });
 
         return () => unsubscribe();
-    }, [user]);
+    }, [user, userProfile?.householdId]);
 
     const addItem = async (newItem: Omit<InventoryItem, 'id' | 'createdAt' | 'updatedAt'>) => {
-        if (!user) return;
+        // We need both user and profile to allow adding
+        if (!user || !userProfile?.householdId) return;
 
         // Auto-categorize if needed
         let finalCategory = newItem.category;
@@ -62,6 +63,7 @@ export const useInventory = () => {
             stockLevel: newItem.stockLevel || 'full', // Default to full
             id: tempId,
             userId: user.uid,
+            householdId: userProfile.householdId,
             createdAt: Date.now(),
             updatedAt: Date.now()
         };
@@ -74,6 +76,7 @@ export const useInventory = () => {
                 category: finalCategory,
                 stockLevel: newItem.stockLevel || 'full',
                 userId: user.uid,
+                householdId: userProfile.householdId,
                 createdAt: Date.now(),
                 updatedAt: Date.now()
             });
@@ -118,7 +121,7 @@ export const useInventory = () => {
     };
 
     const seedData = async () => {
-        if (!user) return;
+        if (!user || !userProfile?.householdId) return;
 
         const essentials = [
             { name: 'Milk', category: 'Dairy', stockLevel: 'full' },
@@ -136,6 +139,7 @@ export const useInventory = () => {
                     quantity: 1,
                     value: 0,
                     userId: user.uid,
+                    householdId: userProfile.householdId,
                     createdAt: Date.now(),
                     updatedAt: Date.now()
                 });

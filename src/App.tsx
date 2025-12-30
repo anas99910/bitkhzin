@@ -22,7 +22,7 @@ function App() {
   });
   const { items, addItem, deleteItem } = useInventory();
   const { isInstallable, promptToInstall } = useInstallPrompt();
-  const { user, loading } = useAuth();
+  const { user, loading, userProfile, updateHousehold } = useAuth();
 
   // Dark Mode Effect
   useEffect(() => {
@@ -84,6 +84,41 @@ function App() {
                 <p>App Version: 1.1.0</p>
                 <p>Account: {user.email}</p>
                 <p>Sync Status: Cloud (Firebase)</p>
+              </div>
+
+              <hr style={{ margin: '16px 0', borderColor: 'var(--glass-border)', opacity: 0.3 }} />
+
+              <div>
+                <h3>Family Sharing</h3>
+                <p style={{ fontSize: '0.9rem', opacity: 0.7, marginBottom: '8px' }}>
+                  Share this code with your family to sync your list:
+                </p>
+                <div style={{
+                  display: 'flex', gap: '8px', background: 'rgba(0,0,0,0.05)', padding: '12px', borderRadius: '8px',
+                  fontFamily: 'monospace', fontWeight: 'bold', justifyContent: 'center', marginBottom: '16px'
+                }} onClick={() => {
+                  navigator.clipboard.writeText(userProfile?.householdId || '');
+                  alert('Code copied!');
+                }}>
+                  {userProfile?.householdId || 'Loading...'}
+                </div>
+
+                <details>
+                  <summary style={{ cursor: 'pointer', fontSize: '0.9rem', color: 'hsl(var(--color-primary))' }}>Join a Family</summary>
+                  <form onSubmit={async (e) => {
+                    e.preventDefault();
+                    // @ts-ignore
+                    const code = e.target.code.value;
+                    if (code && confirm('Joining a new family will switch your view. Continue?')) {
+                      await updateHousehold(code);
+                      alert('You have joined the family!');
+                      window.location.reload();
+                    }
+                  }} style={{ marginTop: '12px', display: 'flex', gap: '8px' }}>
+                    <input name="code" placeholder="Enter family code" className="glass-panel" style={{ padding: '8px', flex: 1 }} />
+                    <Button size="sm" type="submit">Join</Button>
+                  </form>
+                </details>
               </div>
 
               <hr style={{ margin: '16px 0', borderColor: 'var(--glass-border)', opacity: 0.3 }} />

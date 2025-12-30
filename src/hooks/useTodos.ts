@@ -14,17 +14,17 @@ export interface ShoppingItem {
 
 export const useTodos = () => {
     const [todos, setTodos] = useState<ShoppingItem[]>([]);
-    const { user } = useAuth();
+    const { user, userProfile } = useAuth(); // Get userProfile
 
     useEffect(() => {
-        if (!user) {
+        if (!user || !userProfile?.householdId) {
             setTodos([]);
             return;
         }
 
         const q = query(
-            collection(db, 'shopping-list'), // Changed collection
-            where('userId', '==', user.uid)
+            collection(db, 'shopping-list'),
+            where('householdId', '==', userProfile.householdId)
         );
 
         const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -42,10 +42,10 @@ export const useTodos = () => {
         });
 
         return () => unsubscribe();
-    }, [user]);
+    }, [user, userProfile?.householdId]);
 
     const addTodo = async (text: string, quantity: number = 1, category: string = 'Other') => {
-        if (!text.trim() || !user) return;
+        if (!text.trim() || !user || !userProfile?.householdId) return;
 
         // Optimistic Update
         const tempId = Date.now().toString();
@@ -63,6 +63,7 @@ export const useTodos = () => {
             await addDoc(collection(db, 'shopping-list'), {
                 text,
                 userId: user.uid,
+                householdId: userProfile.householdId,
                 completed: false,
                 quantity,
                 category,
