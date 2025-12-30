@@ -16,7 +16,7 @@ export const TodoView: React.FC = () => {
     };
 
     return (
-        <div className="animate-fade-in">
+        <div className="animate-slide-up">
             <h2 className="text-title">To-Do List</h2>
 
             {/* Input Area */}
@@ -101,7 +101,7 @@ export const TodoView: React.FC = () => {
                     </div>
                 ))}
             </div>
-        </div>
+        </div >
     );
 };
 

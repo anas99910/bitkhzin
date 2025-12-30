@@ -14,8 +14,8 @@ export default defineConfig({
       includeAssets: ['favicon.png', 'apple-touch-icon.png', 'mask-icon.svg'],
       scope: './',
       manifest: {
-        name: 'My Household Inventory',
-        short_name: 'Inventory',
+        name: 'Bitlkhzin',
+        short_name: 'Bitlkhzin',
         description: 'Premium Household Inventory Management',
         theme_color: '#ffffff',
         start_url: './',

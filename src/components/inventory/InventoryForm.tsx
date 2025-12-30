@@ -30,10 +30,10 @@ export const InventoryForm: React.FC<InventoryFormProps> = ({ onSubmit, onCancel
     const labelStyle = { fontWeight: 600, fontSize: '0.875rem' };
 
     return (
-        <Card className="animate-fade-in">
-            <h2 className="text-title" style={{ fontSize: '1.5rem' }}>Add New Item</h2>
-            <form onSubmit={handleSubmit}>
-                <div style={fieldStyle}>
+        <div className="animate-slide-up">
+            <h2 className="text-title">Add New Item</h2>
+            <Card>
+                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                     <label style={labelStyle}>Item Name</label>
                     <input
                         required
@@ -80,30 +80,13 @@ export const InventoryForm: React.FC<InventoryFormProps> = ({ onSubmit, onCancel
                             min="1"
                             value={quantity}
                             onChange={e => setQuantity(parseInt(e.target.value))}
-                            className="glass-panel"
-                            style={{ padding: '12px', background: 'rgba(255,255,255,0.5)', width: '100%' }}
-                        />
-                    </div>
-                    <div style={fieldStyle}>
-                        <label style={labelStyle}>Value ($)</label>
-                        <input
-                            type="number"
-                            min="0"
-                            step="0.01"
-                            value={value}
-                            onChange={e => setValue(e.target.value)}
-                            className="glass-panel"
-                            style={{ padding: '12px', background: 'rgba(255,255,255,0.5)', width: '100%' }}
-                            placeholder="0.00"
-                        />
-                    </div>
                 </div>
 
-                <div style={{ display: 'flex', gap: '12px', marginTop: '24px', justifyContent: 'flex-end' }}>
-                    <Button type="button" variant="secondary" onClick={onCancel}>Cancel</Button>
-                    <Button type="submit">Save Item</Button>
-                </div>
-            </form>
-        </Card>
-    );
+                    <div style={{ display: 'flex', gap: '12px', marginTop: '24px', justifyContent: 'flex-end' }}>
+                        <Button type="button" variant="secondary" onClick={onCancel}>Cancel</Button>
+                        <Button type="submit">Save Item</Button>
+                    </div>
+                </form>
+            </Card>
+            );
 };

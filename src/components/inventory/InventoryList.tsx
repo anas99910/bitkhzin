@@ -34,41 +34,37 @@ export const InventoryList: React.FC<InventoryListProps> = ({ items, onAddItem, 
                     <p>No items found. Add your first item!</p>
                 </div>
             ) : (
-                <div className="grid-auto-fit">
-                    {items.map((item, i) => (
-                        <Card key={item.id} hoverEffect style={{ animationDelay: `${i * 50}ms` }} className="animate-fade-in">
-                            <div style={{ display: 'flex', gap: '16px' }}>
-                                <div style={{
-                                    width: '80px', height: '80px',
-                                    borderRadius: '12px',
-                                    background: 'linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 100%)',
-                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                    fontSize: '2rem'
-                                }}>
-                                    {getCategoryEmoji(item.category)}
+                <div className="inventory-grid" style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
+                    gap: '16px'
+                }}>
+                    {items.map((item, index) => (
+                        <div key={item.id} className="animate-slide-up" style={{ animationDelay: `${index * 50}ms` }}>
+                            <Card hover className="inventory-card" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                                    <span style={{ fontSize: '2rem' }}>
+                                        {getCategoryEmoji(item.category)}
+                                    </span>
                                 </div>
-
-                                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                                    <div>
-                                        <h3 style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>{item.name}</h3>
-                                        <p className="text-muted" style={{ fontSize: '0.875rem' }}>{item.category} • {item.location}</p>
-                                    </div>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-                                        <span style={{ fontWeight: '600', color: 'hsl(var(--color-primary))' }}>
-                                            {item.value ? `$${item.value}` : '-'}
-                                        </span>
-                                        <div style={{ display: 'flex', gap: '8px' }}>
-                                            <button
-                                                onClick={(e) => { e.stopPropagation(); onDeleteItem(item.id); }}
-                                                style={{ padding: '8px', borderRadius: '8px', border: 'none', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', cursor: 'pointer' }}
-                                            >
-                                                <Trash2 size={16} />
-                                            </button>
-                                        </div>
-                                    </div>
+                                <div style={{ flex: 1, marginBottom: '12px' }}>
+                                    <h3 style={{ fontWeight: 'bold', fontSize: '1.1rem', marginBottom: '4px' }}>{item.name}</h3>
+                                    <p className="text-muted" style={{ fontSize: '0.85rem' }}>{item.location}</p>
                                 </div>
-                            </div>
-                        </Card>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: 'auto' }}>
+                                    <span style={{ fontWeight: '600', color: 'hsl(var(--color-primary))' }}>
+                                        {item.value ? `$${item.value}` : '-'}
+                                    </span>
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); onDeleteItem(item.id); }}
+                                        className="icon-button danger"
+                                        style={{ padding: '6px' }}
+                                    >
+                                        <Trash2 size={16} />
+                                    </button>
+                                </div>
+                            </Card>
+                        </div>
                     ))}
                 </div>
             )}
