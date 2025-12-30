@@ -14,7 +14,12 @@ import { auth } from './lib/firebase';
 
 function App() {
   const [view, setView] = useState<'inventory' | 'todo' | 'settings' | 'add'>('inventory');
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+    return false;
+  });
   const { items, addItem, deleteItem } = useInventory();
   const { isInstallable, promptToInstall } = useInstallPrompt();
   const { user, loading } = useAuth();

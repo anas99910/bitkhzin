@@ -29,15 +29,6 @@
   --font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
-/* Dark Mode - Media Query OR Manual Class */
-@media (prefers-color-scheme: dark) {
-  :root {
-    /* If user has no manual preference, default to dark vars */
-    --glass-bg: rgba(30, 35, 45, 0.7);
-    --glass-border: rgba(255, 255, 255, 0.1);
-  }
-}
-
 .dark {
   --color-background-light: 220 20% 10%;
   /* Force use dark vars as primary */
@@ -71,11 +62,9 @@ body {
 }
 
 /* Dark Mode Body Support */
-@media (prefers-color-scheme: dark) {
-  body {
-    background-color: hsl(var(--color-background-dark));
-    color: hsl(var(--color-text-dark));
-  }
+.dark body {
+  background-color: hsl(var(--color-background-dark));
+  color: hsl(var(--color-text-dark));
 }
 
 .dark body {
