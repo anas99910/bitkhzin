@@ -7,6 +7,7 @@ export interface InventoryItem {
     value?: number;
     purchaseDate?: string; // ISO Date
     description?: string;
+    barcode?: string;
     imageUrl?: string; // Base64 or URL
     createdAt: number;
     updatedAt: number;

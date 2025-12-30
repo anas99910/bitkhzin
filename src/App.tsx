@@ -17,10 +17,13 @@ function App() {
 
   // Dark Mode Effect
   useEffect(() => {
+    const themeColorMeta = document.querySelector('meta[name="theme-color"]');
     if (darkMode) {
       document.documentElement.classList.add('dark');
+      if (themeColorMeta) themeColorMeta.setAttribute('content', '#14171f');
     } else {
       document.documentElement.classList.remove('dark');
+      if (themeColorMeta) themeColorMeta.setAttribute('content', '#f9fafb');
     }
   }, [darkMode]);
 

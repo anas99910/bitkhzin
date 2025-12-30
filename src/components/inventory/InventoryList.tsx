@@ -41,7 +41,7 @@ export const InventoryList: React.FC<InventoryListProps> = ({ items, onAddItem, 
                 }}>
                     {items.map((item, index) => (
                         <div key={item.id} className="animate-slide-up" style={{ animationDelay: `${index * 50}ms` }}>
-                            <Card hover className="inventory-card" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                            <Card hoverEffect className="inventory-card" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
                                     <span style={{ fontSize: '2rem' }}>
                                         {getCategoryEmoji(item.category)}

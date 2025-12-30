@@ -17,10 +17,10 @@ export default defineConfig({
         name: 'Bitlkhzin',
         short_name: 'Bitlkhzin',
         description: 'Premium Household Inventory Management',
-        theme_color: '#ffffff',
+        theme_color: '#14171f',
         start_url: './',
         display: 'standalone',
-        background_color: '#ffffff',
+        background_color: '#14171f',
         icons: [
           {
             src: 'pwa-192x192.png',

@@ -4,6 +4,7 @@ import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { ScanBarcode, Loader2 } from 'lucide-react';
 import { BarcodeScanner } from './BarcodeScanner';
+import { Toast, ToastType } from '../ui/Toast';
 
 interface InventoryFormProps {
     onSubmit: (item: Omit<InventoryItem, 'id' | 'createdAt' | 'updatedAt'>) => void;
@@ -16,13 +17,22 @@ export const InventoryForm: React.FC<InventoryFormProps> = ({ onSubmit, onCancel
     const [location, setLocation] = useState(DEFAULT_LOCATIONS[0]);
     const [quantity, setQuantity] = useState(1);
     const [value, setValue] = useState('');
+    const [barcode, setBarcode] = useState('');
     const [showScanner, setShowScanner] = useState(false);
     const [isFetchingInfo, setIsFetchingInfo] = useState(false);
 
-    const fetchProductInfo = async (barcode: string) => {
+    // Toast State
+    const [toast, setToast] = useState<{ msg: string, type: ToastType, show: boolean }>({ msg: '', type: 'info', show: false });
+
+    const showToast = (msg: string, type: ToastType) => {
+        setToast({ msg, type, show: true });
+    };
+
+    const fetchProductInfo = async (scannedBarcode: string) => {
+        setBarcode(scannedBarcode); // Always set barcode
         setIsFetchingInfo(true);
         try {
-            const response = await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`);
+            const response = await fetch(`https://world.openfoodfacts.org/api/v0/product/${scannedBarcode}.json`);
             const data = await response.json();
 
             if (data.status === 1 && data.product) {
@@ -40,13 +50,13 @@ export const InventoryForm: React.FC<InventoryFormProps> = ({ onSubmit, onCancel
                     setCategory('Other');
                 }
 
-                // If no value set, maybe we can't really guess price, so leave it empty
+                showToast("Product found!", 'success');
             } else {
-                alert('Product not found in database, but barcode scanned successfully.');
+                showToast("Product details not found, but barcode saved.", 'info');
             }
         } catch (error) {
             console.error("Error fetching product info:", error);
-            alert('Failed to fetch product info. Please try entering details manually.');
+            showToast("Network error. Please enter details manually.", 'error');
         } finally {
             setIsFetchingInfo(false);
         }
@@ -65,6 +75,7 @@ export const InventoryForm: React.FC<InventoryFormProps> = ({ onSubmit, onCancel
             location,
             quantity,
             value: value ? parseFloat(value) : 0,
+            barcode,
         });
     };
 
@@ -91,7 +102,14 @@ export const InventoryForm: React.FC<InventoryFormProps> = ({ onSubmit, onCancel
             <Card>
                 <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                     <div style={fieldStyle}>
-                        <label style={labelStyle}>Item Name</label>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <label style={labelStyle}>Item Name</label>
+                            {barcode && (
+                                <span style={{ fontSize: '0.75rem', color: 'hsl(var(--color-primary))', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                    <ScanBarcode size={12} /> {barcode}
+                                </span>
+                            )}
+                        </div>
                         <input
                             required
                             type="text"
@@ -162,6 +180,12 @@ export const InventoryForm: React.FC<InventoryFormProps> = ({ onSubmit, onCancel
                     </div>
                 </form>
             </Card>
+            <Toast
+                message={toast.msg}
+                type={toast.type}
+                isVisible={toast.show}
+                onClose={() => setToast({ ...toast, show: false })}
+            />
         </div>
     );
 };
