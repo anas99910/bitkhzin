@@ -114,6 +114,25 @@ body {
   background: rgba(255, 255, 255, 0.2);
 }
 
+.btn-ghost {
+  background: transparent;
+  color: inherit;
+  border: none;
+  padding: 12px 24px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.btn-ghost:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.dark .btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
 .container {
   max-width: 1200px;
   margin: 0 auto;
