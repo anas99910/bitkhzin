@@ -2,7 +2,7 @@ import React from 'react';
 import { InventoryItem } from '../../types/inventory';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
-import { Plus, Trash2, ShoppingCart } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { useTodos } from '../../hooks/useTodos';
 import { useInventory } from '../../hooks/useInventory';
 import { Toast } from '../ui/Toast';
