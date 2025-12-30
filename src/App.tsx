@@ -53,8 +53,8 @@ function App() {
       case 'add':
         return (
           <InventoryForm
-            onSubmit={(item) => {
-              addItem(item);
+            onSubmit={(item, imageUrl) => {
+              addItem(item, imageUrl);
               setView('inventory');
             }}
             onCancel={() => setView('inventory')}

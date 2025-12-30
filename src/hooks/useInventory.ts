@@ -39,17 +39,20 @@ export const useInventory = () => {
         return () => unsubscribe();
     }, [user]);
 
-    const addItem = async (newItem: Omit<InventoryItem, 'id' | 'createdAt' | 'updatedAt'>) => {
+    const addItem = async (newItem: Omit<InventoryItem, 'id' | 'createdAt' | 'updatedAt'>, imageUrl?: string) => {
         try {
             if (!user) return;
+
             await addDoc(collection(db, 'inventory'), {
                 ...newItem,
                 userId: user.uid,
+                imageUrl: imageUrl || newItem.imageUrl, // Use base64 string
                 createdAt: Date.now(),
                 updatedAt: Date.now()
             });
         } catch (error) {
             console.error("Error adding item:", error);
+            throw error;
         }
     };
 

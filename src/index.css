@@ -99,7 +99,7 @@ body {
 
 /* Utilities */
 .btn-secondary {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--glass-bg);
   color: inherit;
   border: 1px solid var(--glass-border);
   padding: 12px 24px;
@@ -107,6 +107,7 @@ body {
   cursor: pointer;
   font-weight: 600;
   transition: all 0.2s;
+  box-shadow: var(--shadow-sm);
 }
 
 .btn-secondary:hover {

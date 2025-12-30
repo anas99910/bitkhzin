@@ -1,82 +1,40 @@
-import React, { useState } from 'react';
-import { InventoryItem, DEFAULT_CATEGORIES, DEFAULT_LOCATIONS } from '../../types/inventory';
-import { Button } from '../ui/Button';
-import { Card } from '../ui/Card';
-import { ScanBarcode, Loader2 } from 'lucide-react';
-import { BarcodeScanner } from './BarcodeScanner';
-import { Toast, ToastType } from '../ui/Toast';
+import { compressImage } from '../../utils/imageUtils';
+
+// ... imports
 
 interface InventoryFormProps {
-    onSubmit: (item: Omit<InventoryItem, 'id' | 'createdAt' | 'updatedAt'>) => void;
+    onSubmit: (item: Omit<InventoryItem, 'id' | 'createdAt' | 'updatedAt'>, imageUrl?: string) => void;
     onCancel: () => void;
 }
 
 export const InventoryForm: React.FC<InventoryFormProps> = ({ onSubmit, onCancel }) => {
-    const [name, setName] = useState('');
-    const [category, setCategory] = useState(DEFAULT_CATEGORIES[0]);
-    const [location, setLocation] = useState(DEFAULT_LOCATIONS[0]);
-    const [quantity, setQuantity] = useState(1);
-    const [value, setValue] = useState('');
-    const [barcode, setBarcode] = useState('');
-    const [showScanner, setShowScanner] = useState(false);
-    const [isFetchingInfo, setIsFetchingInfo] = useState(false);
+    // ... items
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // Toast State
-    const [toast, setToast] = useState<{ msg: string, type: ToastType, show: boolean }>({ msg: '', type: 'info', show: false });
+    // ... handleImageSelect, etc
 
-    const showToast = (msg: string, type: ToastType) => {
-        setToast({ msg, type, show: true });
-    };
-
-    const fetchProductInfo = async (scannedBarcode: string) => {
-        setBarcode(scannedBarcode); // Always set barcode
-        setIsFetchingInfo(true);
-        try {
-            const response = await fetch(`https://world.openfoodfacts.org/api/v0/product/${scannedBarcode}.json`);
-            const data = await response.json();
-
-            if (data.status === 1 && data.product) {
-                const product = data.product;
-                setName(product.product_name || '');
-                // Try to guess category
-                const categories = product.categories || '';
-
-                // Simple heuristic for category mapping
-                if (categories.toLowerCase().includes('electronic') || categories.toLowerCase().includes('device')) {
-                    setCategory('Electronics');
-                } else if (categories.toLowerCase().includes('kitchen') || categories.toLowerCase().includes('food') || categories.toLowerCase().includes('cooking')) {
-                    setCategory('Kitchen');
-                } else {
-                    setCategory('Other');
-                }
-
-                showToast("Product found!", 'success');
-            } else {
-                showToast("Product details not found, but barcode saved.", 'info');
-            }
-        } catch (error) {
-            console.error("Error fetching product info:", error);
-            showToast("Network error. Please enter details manually.", 'error');
-        } finally {
-            setIsFetchingInfo(false);
-        }
-    };
-
-    const handleScanResult = (result: string) => {
-        setShowScanner(false);
-        fetchProductInfo(result);
-    };
-
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        onSubmit({
-            name,
-            category,
-            location,
-            quantity,
-            value: value ? parseFloat(value) : 0,
-            barcode,
-        });
+        setIsSubmitting(true);
+        try {
+            let finalImageUrl = undefined;
+            if (selectedImage) {
+                finalImageUrl = await compressImage(selectedImage);
+            }
+
+            onSubmit({
+                name,
+                category,
+                location,
+                quantity,
+                value: value ? parseFloat(value) : 0,
+                barcode,
+            }, finalImageUrl);
+        } catch (error) {
+            console.error("Error preparing submission:", error);
+            showToast("Error processing image", 'error');
+            setIsSubmitting(false);
+        }
     };
 
     const fieldStyle = { display: 'flex', flexDirection: 'column' as const, gap: '8px', marginBottom: '16px' };
@@ -101,6 +59,62 @@ export const InventoryForm: React.FC<InventoryFormProps> = ({ onSubmit, onCancel
 
             <Card>
                 <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                    {/* Image Upload Section */}
+                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '10px' }}>
+                        <div
+                            className="glass-panel"
+                            style={{
+                                width: '100%',
+                                maxWidth: '300px',
+                                height: '200px',
+                                border: '2px dashed var(--glass-border)',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                position: 'relative',
+                                overflow: 'hidden',
+                                cursor: 'pointer'
+                            }}
+                            onClick={() => fileInputRef.current?.click()}
+                        >
+                            {previewUrl ? (
+                                <>
+                                    <img src={previewUrl} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                    <button
+                                        type="button"
+                                        onClick={(e) => { e.stopPropagation(); removeImage(); }}
+                                        style={{
+                                            position: 'absolute',
+                                            top: '8px',
+                                            right: '8px',
+                                            background: 'rgba(0,0,0,0.6)',
+                                            color: 'white',
+                                            borderRadius: '50%',
+                                            padding: '4px',
+                                            border: 'none',
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        <X size={16} />
+                                    </button>
+                                </>
+                            ) : (
+                                <div style={{ textAlign: 'center', opacity: 0.7, padding: '20px' }}>
+                                    <ImageIcon size={48} style={{ marginBottom: '8px', opacity: 0.5 }} />
+                                    <p style={{ margin: 0, fontSize: '0.9rem' }}>Click to add photo</p>
+                                </div>
+                            )}
+                            <input
+                                type="file"
+                                ref={fileInputRef}
+                                style={{ display: 'none' }}
+                                accept="image/*"
+                                onChange={handleImageSelect}
+                            />
+                        </div>
+                    </div>
+
                     <div style={fieldStyle}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <label style={labelStyle}>Item Name</label>
