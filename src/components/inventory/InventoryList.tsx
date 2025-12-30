@@ -41,11 +41,28 @@ export const InventoryList: React.FC<InventoryListProps> = ({ items, onAddItem, 
                 }}>
                     {items.map((item, index) => (
                         <div key={item.id} className="animate-slide-up" style={{ animationDelay: `${index * 50}ms` }}>
-                            <Card hoverEffect className="inventory-card" style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                                    <span style={{ fontSize: '2rem' }}>
-                                        {getCategoryEmoji(item.category)}
-                                    </span>
+                            <Card hoverEffect className="inventory-card" style={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                                <div style={{
+                                    height: '140px',
+                                    marginBottom: '12px',
+                                    borderRadius: 'var(--radius-md)',
+                                    overflow: 'hidden',
+                                    background: 'rgba(0,0,0,0.05)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
+                                }}>
+                                    {item.imageUrl ? (
+                                        <img
+                                            src={item.imageUrl}
+                                            alt={item.name}
+                                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                        />
+                                    ) : (
+                                        <span style={{ fontSize: '3rem' }}>
+                                            {getCategoryEmoji(item.category)}
+                                        </span>
+                                    )}
                                 </div>
                                 <div style={{ flex: 1, marginBottom: '12px' }}>
                                     <h3 style={{ fontWeight: 'bold', fontSize: '1.1rem', marginBottom: '4px' }}>{item.name}</h3>
@@ -55,13 +72,16 @@ export const InventoryList: React.FC<InventoryListProps> = ({ items, onAddItem, 
                                     <span style={{ fontWeight: '600', color: 'hsl(var(--color-primary))' }}>
                                         {item.value ? `$${item.value}` : '-'}
                                     </span>
-                                    <button
-                                        onClick={(e) => { e.stopPropagation(); onDeleteItem(item.id); }}
-                                        className="icon-button danger"
-                                        style={{ padding: '6px' }}
-                                    >
-                                        <Trash2 size={16} />
-                                    </button>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <span style={{ fontSize: '0.8rem', opacity: 0.7 }}>x{item.quantity}</span>
+                                        <button
+                                            onClick={(e) => { e.stopPropagation(); onDeleteItem(item.id); }}
+                                            className="icon-button danger"
+                                            style={{ padding: '6px' }}
+                                        >
+                                            <Trash2 size={16} />
+                                        </button>
+                                    </div>
                                 </div>
                             </Card>
                         </div>

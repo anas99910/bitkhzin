@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { InventoryItem } from '../types/inventory';
 import { db } from '../lib/firebase';
-import { collection, onSnapshot, addDoc, deleteDoc, doc, query, orderBy, where } from 'firebase/firestore';
+import { collection, onSnapshot, addDoc, deleteDoc, doc, query, where } from 'firebase/firestore';
 import { useAuth } from '../context/AuthContext';
 
 export const useInventory = () => {
@@ -16,11 +16,10 @@ export const useInventory = () => {
             return;
         }
 
-        // Query Firestore collection 'inventory'
+        // Query Firestore collection 'inventory' - REMOVED orderBy to fix index issues
         const q = query(
             collection(db, 'inventory'),
-            where('userId', '==', user.uid),
-            orderBy('createdAt', 'desc')
+            where('userId', '==', user.uid)
         );
 
         // Real-time listener
@@ -29,6 +28,10 @@ export const useInventory = () => {
                 id: doc.id,
                 ...doc.data()
             })) as InventoryItem[];
+
+            // Client-side sorting
+            newItems.sort((a, b) => b.createdAt - a.createdAt);
+
             setItems(newItems);
             setLoading(false);
         }, (error) => {
@@ -40,27 +43,54 @@ export const useInventory = () => {
     }, [user]);
 
     const addItem = async (newItem: Omit<InventoryItem, 'id' | 'createdAt' | 'updatedAt'>, imageUrl?: string) => {
-        try {
-            if (!user) return;
+        if (!user) return;
 
+        // Optimistic Update
+        const tempId = Date.now().toString();
+        const optimisticItem: InventoryItem = {
+            ...newItem,
+            id: tempId,
+            userId: user.uid,
+            imageUrl: imageUrl || newItem.imageUrl,
+            createdAt: Date.now(),
+            updatedAt: Date.now()
+        };
+
+        setItems(prev => [optimisticItem, ...prev]);
+
+        try {
             await addDoc(collection(db, 'inventory'), {
                 ...newItem,
                 userId: user.uid,
-                imageUrl: imageUrl || newItem.imageUrl, // Use base64 string
+                imageUrl: imageUrl || newItem.imageUrl,
                 createdAt: Date.now(),
                 updatedAt: Date.now()
             });
         } catch (error) {
             console.error("Error adding item:", error);
+            // Rollback
+            setItems(prev => prev.filter(item => item.id !== tempId));
             throw error;
         }
     };
 
     const deleteItem = async (id: string) => {
+        const itemBackup = items.find(i => i.id === id);
+        if (!itemBackup) return;
+
+        // Optimistic Update
+        setItems(prev => prev.filter(item => item.id !== id));
+
         try {
             await deleteDoc(doc(db, 'inventory', id));
         } catch (error) {
             console.error("Error deleting item:", error);
+            // Rollback
+            setItems(prev => {
+                const newItems = [...prev, itemBackup];
+                newItems.sort((a, b) => b.createdAt - a.createdAt);
+                return newItems;
+            });
         }
     };
 
