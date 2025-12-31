@@ -21,33 +21,27 @@ export type Location = 'kitchen' | 'pantry' | 'fridge' | 'freezer';
 export const DEFAULT_CATEGORIES: string[] = ['Produce', 'Dairy', 'Bakery', 'Meat', 'Frozen', 'Pantry', 'Beverages', 'Snacks', 'Household', 'Other'];
 
 export const AUTO_CATEGORIES: Record<string, string> = {
-    'milk': 'Dairy',
-    'cheese': 'Dairy',
-    'yogurt': 'Dairy',
-    'butter': 'Dairy',
-    'egg': 'Dairy',
-    'eggs': 'Dairy',
-    'bread': 'Bakery',
-    'bagel': 'Bakery',
-    'sugar': 'Bakery',
-    'flour': 'Bakery',
-    'apple': 'Produce',
-    'banana': 'Produce',
-    'lettuce': 'Produce',
-    'tomato': 'Produce',
-    'onion': 'Produce',
-    'potato': 'Produce',
-    'chicken': 'Meat',
-    'beef': 'Meat',
-    'steak': 'Meat',
-    'water': 'Beverages',
-    'juice': 'Beverages',
-    'soda': 'Beverages',
-    'coffee': 'Pantry',
-    'tea': 'Pantry',
-    'rice': 'Pantry',
-    'pasta': 'Pantry',
-    'oil': 'Pantry',
-    'salt': 'Pantry',
-    'pepper': 'Pantry'
+    // Dairy
+    'milk': 'Dairy', 'cheese': 'Dairy', 'yogurt': 'Dairy', 'butter': 'Dairy', 'egg': 'Dairy',
+
+    // Bakery
+    'bread': 'Bakery', 'bagel': 'Bakery', 'sugar': 'Bakery', 'flour': 'Bakery', 'khobz': 'Bakery',
+
+    // Produce
+    'apple': 'Produce', 'banana': 'Produce', 'lettuce': 'Produce', 'tomato': 'Produce',
+    'onion': 'Produce', 'potato': 'Produce', 'maticha': 'Produce', 'batata': 'Produce',
+    'khei': 'Produce', 'carrot': 'Produce',
+
+    // Meat
+    'chicken': 'Meat', 'beef': 'Meat', 'steak': 'Meat',
+
+    // Beverages
+    'water': 'Beverages', 'juice': 'Beverages', 'soda': 'Beverages', 'coffee': 'Beverages',
+    'tea': 'Beverages', 'atay': 'Beverages',
+
+    // Pantry
+    'rice': 'Pantry', 'pasta': 'Pantry', 'oil': 'Pantry', 'salt': 'Pantry', 'pepper': 'Pantry',
+    'zit': 'Pantry', 'olive oil': 'Pantry', 'skar': 'Pantry', 'smida': 'Pantry',
+    'semolina': 'Pantry', 'laadas': 'Pantry', 'lentils': 'Pantry', 'homs': 'Pantry',
+    'chickpeas': 'Pantry', 'lubia': 'Pantry', 'couscous': 'Pantry'
 };

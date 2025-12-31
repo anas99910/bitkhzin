@@ -124,11 +124,16 @@ export const useInventory = () => {
         if (!user || !userProfile?.householdId) return;
 
         const essentials = [
+            { name: 'Khobz (Bread)', category: 'Bakery', stockLevel: 'full' },
+            { name: 'Atay (Tea)', category: 'Beverages', stockLevel: 'full' },
+            { name: 'Skar (Sugar)', category: 'Pantry', stockLevel: 'full' },
+            { name: 'Zit Zitoune', category: 'Pantry', stockLevel: 'full' },
+            { name: 'Farine & Smida', category: 'Pantry', stockLevel: 'full' },
+            { name: 'Laadas/Homs', category: 'Pantry', stockLevel: 'low' },
+            { name: 'Maticha (Tomato)', category: 'Produce', stockLevel: 'full' },
+            { name: 'Batata (Potato)', category: 'Produce', stockLevel: 'full' },
             { name: 'Milk', category: 'Dairy', stockLevel: 'full' },
             { name: 'Eggs', category: 'Dairy', stockLevel: 'low' },
-            { name: 'Bread', category: 'Bakery', stockLevel: 'full' },
-            { name: 'Rice', category: 'Pantry', stockLevel: 'full' },
-            { name: 'Pasta', category: 'Pantry', stockLevel: 'normal' },
         ];
 
         try {
