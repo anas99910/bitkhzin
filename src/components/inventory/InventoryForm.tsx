@@ -132,20 +132,17 @@ export const InventoryForm: React.FC<InventoryFormProps> = ({ onSubmit, onCancel
                             />
 
                             {suggestions.length > 0 && (
-                                <ul style={{
-                                    position: 'absolute',
-                                    top: '100%',
-                                    left: 0,
-                                    right: 0,
-                                    zIndex: 50,
-                                    background: 'var(--bg-card)',
-                                    borderRadius: '0 0 var(--radius-md) var(--radius-md)',
-                                    boxShadow: 'var(--shadow-lg)',
-                                    border: '1px solid var(--glass-border)',
-                                    marginTop: '4px',
-                                    padding: '4px 0',
-                                    listStyle: 'none'
-                                }}>
+                                <ul
+                                    className="dropdown-panel"
+                                    style={{
+                                        position: 'absolute',
+                                        top: '100%',
+                                        left: 0,
+                                        right: 0,
+                                        marginTop: '4px',
+                                        padding: '4px 0',
+                                        listStyle: 'none'
+                                    }}>
                                     {suggestions.map((s) => (
                                         <li
                                             key={s}

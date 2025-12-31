@@ -81,6 +81,19 @@ body {
   border-radius: var(--radius-md);
 }
 
+.dropdown-panel {
+  background: hsl(var(--color-surface-light));
+  border: 1px solid var(--glass-border);
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  z-index: 50;
+}
+
+.dark .dropdown-panel {
+  background: hsl(var(--color-surface-dark));
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
 .btn-primary {
   background: hsl(var(--color-primary));
   color: white;
