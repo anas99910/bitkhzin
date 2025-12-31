@@ -2,16 +2,32 @@ import React, { useState } from 'react';
 import { useTodos } from '../../hooks/useTodos';
 import { useInventory } from '../../hooks/useInventory';
 import { Button } from '../ui/Button';
-import { Plus, Trash2, Circle, CheckCircle, ArrowRight } from 'lucide-react';
+import { Plus, Trash2, Circle, CheckCircle, ArrowRight, RotateCcw } from 'lucide-react';
 import { DEFAULT_CATEGORIES } from '../../types/inventory';
 import { Card } from '../ui/Card';
+import { SwipeableItem } from '../ui/SwipeableItem';
+import { Toast } from '../ui/Toast';
+import { useCategories } from '../../context/CategoriesContext';
 
 export const TodoView: React.FC = () => {
     const { todos, addTodo, toggleTodo, deleteTodo } = useTodos();
     const { addItem } = useInventory();
+    const { categories } = useCategories();
     const [inputText, setInputText] = useState('');
     const [quantity, setQuantity] = useState(1);
-    const [category, setCategory] = useState(DEFAULT_CATEGORIES[0]);
+    const [category, setCategory] = useState(categories[0] || 'Other');
+
+    // Toast state
+    const [toast, setToast] = useState<{ show: boolean; msg: string; type: 'success' | 'error' | 'info'; actionLabel?: string; onAction?: () => void }>({
+        show: false, msg: '', type: 'success'
+    });
+
+    const showToast = (msg: string, type: 'success' | 'error' | 'info' = 'success', actionLabel?: string, onAction?: () => void) => {
+        setToast({ show: true, msg, type, actionLabel, onAction });
+        // Don't auto-hide if there is an action, or make it longer
+        const duration = actionLabel ? 5000 : 3000;
+        setTimeout(() => setToast(prev => ({ ...prev, show: false })), duration);
+    };
 
     const handleAdd = (e?: React.FormEvent) => {
         e?.preventDefault();
@@ -33,8 +49,57 @@ export const TodoView: React.FC = () => {
                 value: 0
             });
             deleteTodo(todo.id);
+            showToast(`Moved ${todo.text} to pantry`);
         }
     };
+
+    const handleDelete = (id: string, text: string) => {
+        // optimistic delete happens in hook, but we need to supply UNDO capability
+        // The hook doesn't support "restore" easily unless we re-add.
+        // Actually, let's just re-add it if they undo. 
+        // Ideally, we'd have a soft-delete or a true undo in the hook, but let's simulate it by keeping the data in closure.
+
+        const itemToDelete = todos.find(t => t.id === id);
+
+        deleteTodo(id);
+
+        showToast(`Deleted "${text}"`, 'info', 'Undo', () => {
+            if (itemToDelete) {
+                // Restore item
+                addTodo(itemToDelete.text, itemToDelete.quantity, itemToDelete.category);
+                // Note: This creates a new ID, but that's acceptable for simple undo
+                showToast('Item restored');
+            }
+        });
+    };
+
+    const handleClearCompleted = () => {
+        if (confirm('Delete all completed items?')) {
+            const completed = todos.filter(t => t.completed);
+            completed.forEach(t => deleteTodo(t.id));
+            showToast(`Cleared ${completed.length} items`);
+        }
+    }
+
+    const handleMoveAllToPantry = () => {
+        const completed = todos.filter(t => t.completed);
+        if (completed.length === 0) return;
+
+        if (confirm(`Move ${completed.length} items to pantry?`)) {
+            completed.forEach(t => {
+                addItem({
+                    name: t.text,
+                    category: t.category,
+                    quantity: t.quantity,
+                    location: 'Kitchen',
+                    stockLevel: 'full',
+                    value: 0
+                });
+                deleteTodo(t.id);
+            });
+            showToast(`Moved ${completed.length} items to Pantry`, 'success');
+        }
+    }
 
     // Grouping items by category
     const groupedTodos = todos.reduce((acc, todo) => {
@@ -43,8 +108,10 @@ export const TodoView: React.FC = () => {
         return acc;
     }, {} as Record<string, typeof todos>);
 
+    const hasCompleted = todos.some(t => t.completed);
+
     return (
-        <div className="animate-slide-up">
+        <div className="animate-slide-up" style={{ paddingBottom: '100px' }}>
             <h2 className="text-title">Shopping List</h2>
 
             {/* Input Area */}
@@ -96,7 +163,7 @@ export const TodoView: React.FC = () => {
                                 cursor: 'pointer'
                             }}
                         >
-                            {DEFAULT_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                            {categories.map(c => <option key={c} value={c}>{c}</option>)}
                         </select>
 
                         <Button type="submit" disabled={!inputText.trim()} style={{ width: '60px', padding: '0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -129,82 +196,108 @@ export const TodoView: React.FC = () => {
                         </h3>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                             {items.map((todo, index) => (
-                                <div
+                                <SwipeableItem
                                     key={todo.id}
-                                    className="glass-panel list-item-enter tap-scale"
-                                    style={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        padding: '12px 16px',
-                                        gap: '12px',
-                                        transition: 'all 0.2s',
-                                        opacity: 0, // Handled by animation
-                                        animationDelay: `${index * 50}ms`,
-                                        background: todo.completed ? 'rgba(0,0,0,0.02)' : 'var(--glass-bg)'
-                                    }}
+                                    onSwipeLeft={() => handleDelete(todo.id, todo.text)}
+                                    onSwipeRight={() => toggleTodo(todo.id)} // Swipe right to toggle completion
                                 >
-                                    <button
-                                        onClick={() => toggleTodo(todo.id)}
+                                    <div
+                                        className="tap-scale"
                                         style={{
-                                            background: 'none',
-                                            border: 'none',
-                                            cursor: 'pointer',
-                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                            color: todo.completed ? 'hsl(var(--color-primary))' : 'var(--text-muted)'
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            padding: '12px 16px',
+                                            gap: '12px',
+                                            // background handled by SwipeableItem container now. But we need transparency here?
+                                            // No, SwipeableItem forces specific background. Let's make sure it looks good.
+                                            // Actually SwipeableItem sets glass-panel style.
+                                            background: todo.completed ? 'rgba(0,0,0,0.02)' : 'transparent', // Light dim if completed
+                                            width: '100%'
                                         }}
                                     >
-                                        {todo.completed ? <CheckCircle size={22} fill="currentColor" className="text-primary" /> : <Circle size={22} />}
-                                    </button>
+                                        <button
+                                            onClick={() => toggleTodo(todo.id)}
+                                            style={{
+                                                background: 'none',
+                                                border: 'none',
+                                                cursor: 'pointer',
+                                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                color: todo.completed ? 'hsl(var(--color-primary))' : 'var(--text-muted)'
+                                            }}
+                                        >
+                                            {todo.completed ? <CheckCircle size={22} fill="currentColor" className="text-primary" /> : <Circle size={22} />}
+                                        </button>
 
-                                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-                                        <span style={{
-                                            fontSize: '1rem',
-                                            textDecoration: todo.completed ? 'line-through' : 'none',
-                                            fontWeight: 500
-                                        }}>
-                                            {todo.text}
-                                        </span>
-                                        {todo.quantity > 1 && (
-                                            <span style={{ fontSize: '0.8rem', opacity: 0.7 }}>
-                                                Qty: {todo.quantity}
+                                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                                            <span style={{
+                                                fontSize: '1rem',
+                                                textDecoration: todo.completed ? 'line-through' : 'none',
+                                                fontWeight: 500,
+                                                opacity: todo.completed ? 0.5 : 1
+                                            }}>
+                                                {todo.text}
                                             </span>
+                                            {todo.quantity > 1 && (
+                                                <span style={{ fontSize: '0.8rem', opacity: 0.7 }}>
+                                                    Qty: {todo.quantity}
+                                                </span>
+                                            )}
+                                        </div>
+
+                                        {todo.completed && (
+                                            <button
+                                                onClick={() => handleMoveToPantry(todo)}
+                                                style={{
+                                                    background: 'none', border: 'none',
+                                                    cursor: 'pointer',
+                                                    color: 'hsl(var(--color-primary))',
+                                                    padding: '4px',
+                                                    marginRight: '4px'
+                                                }}
+                                                title="Move to Inventory"
+                                            >
+                                                <ArrowRight size={18} />
+                                            </button>
                                         )}
                                     </div>
-
-                                    {todo.completed && (
-                                        <button
-                                            onClick={() => handleMoveToPantry(todo)}
-                                            style={{
-                                                background: 'none', border: 'none',
-                                                cursor: 'pointer',
-                                                color: 'hsl(var(--color-primary))',
-                                                padding: '4px',
-                                                marginRight: '4px'
-                                            }}
-                                            title="Move to Inventory"
-                                        >
-                                            <ArrowRight size={18} />
-                                        </button>
-                                    )}
-
-                                    <button
-                                        onClick={() => deleteTodo(todo.id)}
-                                        style={{
-                                            background: 'none', border: 'none',
-                                            opacity: 0.3, cursor: 'pointer',
-                                            color: '#ef4444',
-                                            padding: '4px'
-                                        }}
-                                        className="hover:opacity-100"
-                                    >
-                                        <Trash2 size={18} />
-                                    </button>
-                                </div>
+                                </SwipeableItem>
                             ))}
                         </div>
                     </div>
                 ))}
             </div>
+
+            {/* Bulk Actions Footer */}
+            {hasCompleted && (
+                <div style={{
+                    position: 'fixed',
+                    bottom: '84px', // Above nav
+                    left: 0, right: 0,
+                    padding: '12px',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    gap: '12px',
+                    pointerEvents: 'none' // Let clicks pass through if not on buttons
+                }}>
+                    <div style={{ pointerEvents: 'auto', display: 'flex', gap: '8px' }}>
+                        <Button size="sm" variant="secondary" onClick={handleClearCompleted} style={{ boxShadow: 'var(--shadow-lg)', background: 'var(--color-surface-light)' }}>
+                            <Trash2 size={16} style={{ marginRight: '4px' }} /> Clear Done
+                        </Button>
+                        <Button size="sm" onClick={handleMoveAllToPantry} style={{ boxShadow: 'var(--shadow-lg)' }}>
+                            <Archive size={16} style={{ marginRight: '4px' }} /> Move All to Pantry
+                        </Button>
+                    </div>
+                </div>
+            )}
+
+            <Toast
+                isVisible={toast.show}
+                message={toast.msg}
+                type={toast.type}
+                actionLabel={toast.actionLabel}
+                onAction={toast.onAction}
+                onClose={() => setToast(prev => ({ ...prev, show: false }))}
+            />
         </div >
     );
 };

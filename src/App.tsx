@@ -11,6 +11,61 @@ import { useInstallPrompt } from './hooks/useInstallPrompt';
 import { useAuth } from './context/AuthContext';
 import { AuthScreen } from './components/auth/AuthScreen';
 import { auth } from './lib/firebase';
+import { useCategories } from './context/CategoriesContext';
+import { Trash2, Plus } from 'lucide-react';
+
+const CategoryManager = () => {
+  const { customCategories, addCategory, removeCategory } = useCategories();
+  const [newCat, setNewCat] = useState('');
+
+  const handleAdd = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newCat.trim()) {
+      await addCategory(newCat.trim());
+      setNewCat('');
+    }
+  };
+
+  return (
+    <div>
+      <h3>Custom Categories</h3>
+
+      <form onSubmit={handleAdd} style={{ display: 'flex', gap: '8px', marginBottom: '12px', marginTop: '8px' }}>
+        <input
+          value={newCat}
+          onChange={e => setNewCat(e.target.value)}
+          placeholder="New Category..."
+          className="glass-panel"
+          style={{ flex: 1, padding: '8px' }}
+        />
+        <Button size="sm" type="submit"><Plus size={16} /></Button>
+      </form>
+
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+        {customCategories.length === 0 && <span className="text-muted" style={{ fontSize: '0.9rem' }}>No custom categories yet.</span>}
+        {customCategories.map(c => (
+          <div key={c.id} style={{
+            background: 'rgba(0,0,0,0.05)',
+            padding: '4px 12px',
+            borderRadius: '16px',
+            fontSize: '0.9rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px'
+          }}>
+            {c.name}
+            <button
+              onClick={() => removeCategory(c.id, c.name)}
+              style={{ border: 'none', background: 'none', cursor: 'pointer', color: '#ef4444', display: 'flex' }}
+            >
+              <Trash2 size={14} />
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
 
 function App() {
   const [view, setView] = useState<'inventory' | 'todo' | 'settings' | 'add'>('inventory');
@@ -132,7 +187,6 @@ function App() {
                 Log Out
               </Button>
 
-              {/* PWA Install Button */}
               {isInstallable && (
                 <>
                   <hr style={{ margin: '16px 0', borderColor: 'var(--glass-border)', opacity: 0.3 }} />
@@ -142,6 +196,10 @@ function App() {
                   </Button>
                 </>
               )}
+
+              <hr style={{ margin: '16px 0', borderColor: 'var(--glass-border)', opacity: 0.3 }} />
+
+              <CategoryManager />
             </Card>
           </div>
         );

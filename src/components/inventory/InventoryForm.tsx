@@ -5,6 +5,7 @@ import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { Toast } from '../ui/Toast';
 import { BarcodeScanner } from './BarcodeScanner';
+import { useCategories } from '../../context/CategoriesContext';
 
 interface InventoryFormProps {
     onSubmit: (item: Omit<InventoryItem, 'id' | 'createdAt' | 'updatedAt'>) => void;
@@ -23,6 +24,7 @@ export const InventoryForm: React.FC<InventoryFormProps> = ({ onSubmit, onCancel
     // Image state removed
     const [showScanner, setShowScanner] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const { categories } = useCategories();
     const [toast, setToast] = useState<{ show: boolean; msg: string; type: 'success' | 'error' }>({
         show: false,
         msg: '',
@@ -178,7 +180,7 @@ export const InventoryForm: React.FC<InventoryFormProps> = ({ onSubmit, onCancel
                             style={{ padding: '12px', background: 'rgba(255,255,255,0.5)', width: '100%' }}
                         >
                             <option value="">Auto-Detect</option>
-                            {DEFAULT_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                            {categories.map(c => <option key={c} value={c}>{c}</option>)}
                         </select>
                     </div>
 
