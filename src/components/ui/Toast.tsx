@@ -9,6 +9,8 @@ interface ToastProps {
     isVisible: boolean;
     onClose: () => void;
     duration?: number;
+    actionLabel?: string;
+    onAction?: () => void;
 }
 
 export const Toast: React.FC<ToastProps> = ({
@@ -16,7 +18,9 @@ export const Toast: React.FC<ToastProps> = ({
     type = 'info',
     isVisible,
     onClose,
-    duration = 3000
+    duration = 3000,
+    actionLabel,
+    onAction
 }) => {
     useEffect(() => {
         if (isVisible && duration > 0) {
@@ -67,7 +71,26 @@ export const Toast: React.FC<ToastProps> = ({
             animation: 'slideDownFade 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
         }}>
             {getIcon()}
-            <span style={{ fontSize: '0.9rem', fontWeight: 500 }}>{message}</span>
+            <span style={{ fontSize: '0.9rem', fontWeight: 500, flex: 1 }}>{message}</span>
+
+            {actionLabel && onAction && (
+                <button
+                    onClick={onAction}
+                    style={{
+                        background: 'rgba(255,255,255,0.15)',
+                        border: 'none',
+                        color: 'white',
+                        padding: '4px 10px',
+                        borderRadius: '4px',
+                        fontWeight: 'bold',
+                        cursor: 'pointer',
+                        fontSize: '0.85rem'
+                    }}
+                >
+                    {actionLabel}
+                </button>
+            )}
+
             <button
                 onClick={onClose}
                 style={{

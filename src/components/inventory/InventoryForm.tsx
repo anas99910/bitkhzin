@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Loader2, ScanBarcode } from 'lucide-react';
-import { InventoryItem, DEFAULT_CATEGORIES, AUTO_CATEGORIES } from '../../types/inventory';
+import { InventoryItem, AUTO_CATEGORIES } from '../../types/inventory';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { Toast } from '../ui/Toast';

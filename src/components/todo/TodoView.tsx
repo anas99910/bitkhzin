@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { useTodos } from '../../hooks/useTodos';
 import { useInventory } from '../../hooks/useInventory';
 import { Button } from '../ui/Button';
-import { Plus, Trash2, Circle, CheckCircle, ArrowRight, RotateCcw } from 'lucide-react';
-import { DEFAULT_CATEGORIES } from '../../types/inventory';
+import { Plus, Trash2, Circle, CheckCircle, ArrowRight, Archive } from 'lucide-react';
+// removed unused imports
 import { Card } from '../ui/Card';
 import { SwipeableItem } from '../ui/SwipeableItem';
 import { Toast } from '../ui/Toast';
@@ -195,7 +195,7 @@ export const TodoView: React.FC = () => {
                             {cat}
                         </h3>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                            {items.map((todo, index) => (
+                            {items.map((todo) => (
                                 <SwipeableItem
                                     key={todo.id}
                                     onSwipeLeft={() => handleDelete(todo.id, todo.text)}
