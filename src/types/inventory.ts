@@ -23,6 +23,7 @@ export const DEFAULT_CATEGORIES: string[] = ['Produce', 'Dairy', 'Bakery', 'Meat
 export const AUTO_CATEGORIES: Record<string, string> = {
     // Dairy
     'milk': 'Dairy', 'cheese': 'Dairy', 'yogurt': 'Dairy', 'butter': 'Dairy', 'egg': 'Dairy',
+    '7lib': 'Dairy', 'lben': 'Dairy', 'bayd': 'Dairy', 'fermaj': 'Dairy', 'danon': 'Dairy',
 
     // Bakery
     'bread': 'Bakery', 'bagel': 'Bakery', 'sugar': 'Bakery', 'flour': 'Bakery', 'khobz': 'Bakery',
@@ -30,14 +31,16 @@ export const AUTO_CATEGORIES: Record<string, string> = {
     // Produce
     'apple': 'Produce', 'banana': 'Produce', 'lettuce': 'Produce', 'tomato': 'Produce',
     'onion': 'Produce', 'potato': 'Produce', 'maticha': 'Produce', 'batata': 'Produce',
-    'khei': 'Produce', 'carrot': 'Produce',
+    'khei': 'Produce', 'carrot': 'Produce', 'khodra': 'Produce', 'fakiya': 'Produce',
+    'bsla': 'Produce', 'touma': 'Produce', 'na3na3': 'Produce', 'rbi3': 'Produce',
 
     // Meat
-    'chicken': 'Meat', 'beef': 'Meat', 'steak': 'Meat',
+    'chicken': 'Meat', 'beef': 'Meat', 'steak': 'Meat', 'djaj': 'Meat', 'l7em': 'Meat',
+    'kefta': 'Meat', 'saucisse': 'Meat', 'hout': 'Meat',
 
     // Beverages
     'water': 'Beverages', 'juice': 'Beverages', 'soda': 'Beverages', 'coffee': 'Beverages',
-    'tea': 'Beverages', 'atay': 'Beverages',
+    'tea': 'Beverages', 'atay': 'Beverages', '9ahwa': 'Beverages', 'monada': 'Beverages',
 
     // Pantry
     'rice': 'Pantry', 'pasta': 'Pantry', 'oil': 'Pantry', 'salt': 'Pantry', 'pepper': 'Pantry',
