@@ -240,7 +240,7 @@ function App() {
                     <hr style={{ margin: '16px 0', borderColor: 'var(--glass-border)', opacity: 0.3 }} />
                     <Button onClick={promptToInstall} style={{ width: '100%', display: 'flex', justifyContent: 'center', gap: '8px' }}>
                       <Download size={18} />
-                      Install App
+                      Install on this device
                     </Button>
                   </>
                 )
