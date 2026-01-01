@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useTodos } from '../../hooks/useTodos';
 import { useInventory } from '../../hooks/useInventory';
 import { SwipeableItem } from '../ui/SwipeableItem';
-import { Plus, GripVertical, Check, CheckCircle, Archive } from 'lucide-react'; // Removing Trash2 fallback if not needed
+import { Plus, CheckCircle, Archive } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Dropdown } from '../ui/Dropdown';
 import { Card } from '../ui/Card';
