@@ -10,6 +10,7 @@ import { Card } from './components/ui/Card';
 import { Button } from './components/ui/Button';
 import { Moon, Sun, Download, LogOut, Loader2, RefreshCw } from 'lucide-react';
 import { useInstallPrompt } from './hooks/useInstallPrompt';
+import { InstallButton } from './components/ui/InstallButton';
 import { useAuth } from './context/AuthContext';
 import { AuthScreen } from './components/auth/AuthScreen';
 import { auth } from './lib/firebase';
