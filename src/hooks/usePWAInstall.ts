@@ -1,52 +1,44 @@
 import { useState, useEffect } from 'react';
 
 interface IBeforeInstallPromptEvent extends Event {
-    readonly platforms: string[];
+    prompt(): Promise<void>;
     readonly userChoice: Promise<{
         outcome: 'accepted' | 'dismissed';
         platform: string;
     }>;
-    prompt(): Promise<void>;
 }
 
-// Global capture to handle race conditions (event firing before React hydrates)
-let globalDeferredPrompt: IBeforeInstallPromptEvent | null = null;
-
-if (typeof window !== 'undefined') {
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        globalDeferredPrompt = e as IBeforeInstallPromptEvent;
-        console.log('[PWA] Global fetch of beforeinstallprompt');
-    });
+declare global {
+    interface Window {
+        deferredPrompt: IBeforeInstallPromptEvent | null;
+    }
 }
 
 export const usePWAInstall = () => {
-    const [canInstall, setCanInstall] = useState(!!globalDeferredPrompt);
-    const [deferredPrompt, setDeferredPrompt] = useState<IBeforeInstallPromptEvent | null>(globalDeferredPrompt);
+    const [canInstall, setCanInstall] = useState(false);
 
     useEffect(() => {
-        const handler = (e: Event) => {
-            e.preventDefault();
-            const event = e as IBeforeInstallPromptEvent;
-            console.log('[PWA] Hook captured beforeinstallprompt');
-            setDeferredPrompt(event);
-            setCanInstall(true);
-            globalDeferredPrompt = event;
-        };
-
-        window.addEventListener('beforeinstallprompt', handler);
-
-        // Initial check in case global fired before hook mount
-        if (globalDeferredPrompt) {
-            setDeferredPrompt(globalDeferredPrompt);
+        // Check if the event was already captured globally
+        if (typeof window !== 'undefined' && window.deferredPrompt) {
+            console.log('[PWA] Hook found global deferredPrompt on mount');
             setCanInstall(true);
         }
 
+        const handler = (e: Event) => {
+            e.preventDefault();
+            console.log('[PWA] Hook captured beforeinstallprompt dynamically');
+            setCanInstall(true);
+            // The global listener in index.html already sets window.deferredPrompt,
+            // but we can ensure it's set here too just in case.
+            window.deferredPrompt = e as IBeforeInstallPromptEvent;
+        };
+
+        window.addEventListener('beforeinstallprompt', handler);
         return () => window.removeEventListener('beforeinstallprompt', handler);
     }, []);
 
     const triggerInstall = async () => {
-        const promptEvent = deferredPrompt || globalDeferredPrompt;
+        const promptEvent = window.deferredPrompt;
         if (!promptEvent) {
             console.warn('[PWA] No prompt event available to trigger');
             return;
@@ -57,9 +49,8 @@ export const usePWAInstall = () => {
         const { outcome } = await promptEvent.userChoice;
         console.log(`[PWA] User response: ${outcome}`);
 
-        // Clear state after usage
-        setDeferredPrompt(null);
-        globalDeferredPrompt = null;
+        // Clear the saved prompt since it can't be used again
+        window.deferredPrompt = null;
         setCanInstall(false);
     };
 
