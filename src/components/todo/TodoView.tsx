@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useTodos } from '../../hooks/useTodos';
 import { useInventory } from '../../hooks/useInventory';
 import { Button } from '../ui/Button';
-import { Plus, Trash2, Circle, CheckCircle, ArrowRight, Archive } from 'lucide-react';
+import { Plus, CheckCircle, Archive } from 'lucide-react';
 // removed unused imports
 import { Card } from '../ui/Card';
 import { SwipeableItem } from '../ui/SwipeableItem';
@@ -38,48 +38,18 @@ export const TodoView: React.FC = () => {
         }
     };
 
-    const handleMoveToPantry = (todo: any) => {
-        if (confirm(`Move "${todo.text}" to your inventory?`)) {
-            addItem({
-                name: todo.text,
-                category: todo.category,
-                quantity: todo.quantity,
-                location: 'Kitchen', // Default
-                stockLevel: 'full',
-                value: 0
-            });
-            deleteTodo(todo.id);
-            showToast(`Moved ${todo.text} to pantry`);
-        }
-    };
 
     const handleDelete = (id: string, text: string) => {
-        // optimistic delete happens in hook, but we need to supply UNDO capability
-        // The hook doesn't support "restore" easily unless we re-add.
-        // Actually, let's just re-add it if they undo. 
-        // Ideally, we'd have a soft-delete or a true undo in the hook, but let's simulate it by keeping the data in closure.
-
         const itemToDelete = todos.find(t => t.id === id);
-
         deleteTodo(id);
-
         showToast(`Deleted "${text}"`, 'info', 'Undo', () => {
             if (itemToDelete) {
                 // Restore item
                 addTodo(itemToDelete.text, itemToDelete.quantity, itemToDelete.category);
-                // Note: This creates a new ID, but that's acceptable for simple undo
                 showToast('Item restored');
             }
         });
     };
-
-    const handleClearCompleted = () => {
-        if (confirm('Delete all completed items?')) {
-            const completed = todos.filter(t => t.completed);
-            completed.forEach(t => deleteTodo(t.id));
-            showToast(`Cleared ${completed.length} items`);
-        }
-    }
 
     const handleMoveAllToPantry = () => {
         const completed = todos.filter(t => t.completed);
@@ -108,10 +78,10 @@ export const TodoView: React.FC = () => {
         return acc;
     }, {} as Record<string, typeof todos>);
 
-    const hasCompleted = todos.some(t => t.completed);
+    const completedCount = todos.filter(t => t.completed).length;
 
     return (
-        <div className="animate-slide-up" style={{ paddingBottom: '100px' }}>
+        <div className="animate-slide-up" style={{ paddingBottom: '120px' }}>
             <h2 className="text-title">Shopping List</h2>
 
             {/* Input Area */}
@@ -128,9 +98,10 @@ export const TodoView: React.FC = () => {
                             style={{
                                 width: '60px',
                                 padding: '12px',
-                                background: 'rgba(255,255,255,0.5)',
+                                background: 'rgba(255,255,255,0.05)',
                                 outline: 'none',
-                                textAlign: 'center'
+                                textAlign: 'center',
+                                border: '1px solid var(--glass-border)'
                             }}
                             placeholder="Qty"
                         />
@@ -143,8 +114,9 @@ export const TodoView: React.FC = () => {
                             style={{
                                 flex: 1,
                                 padding: '12px',
-                                background: 'rgba(255,255,255,0.5)',
-                                outline: 'none'
+                                background: 'rgba(255,255,255,0.05)',
+                                outline: 'none',
+                                border: '1px solid var(--glass-border)'
                             }}
                         />
                     </div>
@@ -158,9 +130,10 @@ export const TodoView: React.FC = () => {
                             style={{
                                 flex: 1,
                                 padding: '12px',
-                                background: 'rgba(255,255,255,0.5)',
+                                background: 'rgba(255,255,255,0.05)',
                                 outline: 'none',
-                                cursor: 'pointer'
+                                cursor: 'pointer',
+                                border: '1px solid var(--glass-border)'
                             }}
                         >
                             {categories.map(c => <option key={c} value={c}>{c}</option>)}
@@ -174,7 +147,7 @@ export const TodoView: React.FC = () => {
             </Card>
 
             {/* Task List */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                 {todos.length === 0 && (
                     <div style={{ textAlign: 'center', padding: '40px', opacity: 0.5 }}>
                         <p>Your shopping list is empty.</p>
@@ -184,81 +157,76 @@ export const TodoView: React.FC = () => {
                 {Object.entries(groupedTodos).map(([cat, items]) => (
                     <div key={cat} className="animate-fade-in">
                         <h3 style={{
-                            fontSize: '0.9rem',
+                            fontSize: '0.85rem',
                             fontWeight: 'bold',
                             color: 'hsl(var(--color-primary))',
-                            marginBottom: '8px',
+                            marginBottom: '12px',
                             marginLeft: '4px',
                             textTransform: 'uppercase',
-                            letterSpacing: '0.05em'
+                            letterSpacing: '0.05em',
+                            opacity: 0.8
                         }}>
                             {cat}
                         </h3>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                             {items.map((todo) => (
                                 <SwipeableItem
                                     key={todo.id}
                                     onSwipeLeft={() => handleDelete(todo.id, todo.text)}
-                                    onSwipeRight={() => toggleTodo(todo.id)} // Swipe right to toggle completion
                                 >
                                     <div
-                                        className="tap-scale"
+                                        className="tap-scale glass-panel"
                                         style={{
                                             display: 'flex',
                                             alignItems: 'center',
-                                            padding: '12px 16px',
-                                            gap: '12px',
-                                            // background handled by SwipeableItem container now. But we need transparency here?
-                                            // No, SwipeableItem forces specific background. Let's make sure it looks good.
-                                            // Actually SwipeableItem sets glass-panel style.
-                                            background: todo.completed ? 'rgba(0,0,0,0.02)' : 'transparent', // Light dim if completed
-                                            width: '100%'
+                                            padding: '16px',
+                                            gap: '16px',
+                                            background: todo.completed ? 'rgba(0,0,0,0.2)' : 'var(--color-surface)',
+                                            width: '100%',
+                                            borderRadius: '16px',
+                                            border: '1px solid var(--glass-border)',
+                                            transition: 'all 0.2s ease'
                                         }}
+                                        onClick={() => toggleTodo(todo.id)}
                                     >
-                                        <button
-                                            onClick={() => toggleTodo(todo.id)}
+                                        {/* Checkbox Area */}
+                                        <div
                                             style={{
-                                                background: 'none',
-                                                border: 'none',
-                                                cursor: 'pointer',
-                                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                                color: todo.completed ? 'hsl(var(--color-primary))' : 'var(--text-muted)'
+                                                minWidth: '24px',
+                                                height: '24px',
+                                                borderRadius: '6px',
+                                                border: todo.completed ? 'none' : '2px solid var(--text-muted)',
+                                                background: todo.completed ? 'hsl(var(--color-primary))' : 'transparent',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                transition: 'all 0.2s',
+                                                flexShrink: 0
                                             }}
                                         >
-                                            {todo.completed ? <CheckCircle size={22} fill="currentColor" className="text-primary" /> : <Circle size={22} />}
-                                        </button>
+                                            {todo.completed && <CheckCircle size={16} color="white" />}
+                                        </div>
 
-                                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                                        {/* Content */}
+                                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
                                             <span style={{
                                                 fontSize: '1rem',
                                                 textDecoration: todo.completed ? 'line-through' : 'none',
                                                 fontWeight: 500,
-                                                opacity: todo.completed ? 0.5 : 1
+                                                color: todo.completed ? 'var(--text-muted)' : 'var(--text-main)',
+                                                transition: 'all 0.2s',
+                                                whiteSpace: 'nowrap',
+                                                overflow: 'hidden',
+                                                textOverflow: 'ellipsis'
                                             }}>
                                                 {todo.text}
                                             </span>
                                             {todo.quantity > 1 && (
-                                                <span style={{ fontSize: '0.8rem', opacity: 0.7 }}>
+                                                <span style={{ fontSize: '0.8rem', color: 'hsl(var(--color-primary))', fontWeight: 'bold' }}>
                                                     Qty: {todo.quantity}
                                                 </span>
                                             )}
                                         </div>
-
-                                        {todo.completed && (
-                                            <button
-                                                onClick={() => handleMoveToPantry(todo)}
-                                                style={{
-                                                    background: 'none', border: 'none',
-                                                    cursor: 'pointer',
-                                                    color: 'hsl(var(--color-primary))',
-                                                    padding: '4px',
-                                                    marginRight: '4px'
-                                                }}
-                                                title="Move to Inventory"
-                                            >
-                                                <ArrowRight size={18} />
-                                            </button>
-                                        )}
                                     </div>
                                 </SwipeableItem>
                             ))}
@@ -267,26 +235,33 @@ export const TodoView: React.FC = () => {
                 ))}
             </div>
 
-            {/* Bulk Actions Footer */}
-            {hasCompleted && (
-                <div style={{
+            {/* Floating "Done Shopping" Button */}
+            {completedCount > 0 && (
+                <div className="animate-slide-up" style={{
                     position: 'fixed',
-                    bottom: '84px', // Above nav
-                    left: 0, right: 0,
-                    padding: '12px',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    gap: '12px',
-                    pointerEvents: 'none' // Let clicks pass through if not on buttons
+                    bottom: '90px',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    zIndex: 20
                 }}>
-                    <div style={{ pointerEvents: 'auto', display: 'flex', gap: '8px' }}>
-                        <Button size="sm" variant="secondary" onClick={handleClearCompleted} style={{ boxShadow: 'var(--shadow-lg)', background: 'var(--color-surface-light)' }}>
-                            <Trash2 size={16} style={{ marginRight: '4px' }} /> Clear Done
-                        </Button>
-                        <Button size="sm" onClick={handleMoveAllToPantry} style={{ boxShadow: 'var(--shadow-lg)' }}>
-                            <Archive size={16} style={{ marginRight: '4px' }} /> Move All to Pantry
-                        </Button>
-                    </div>
+                    <Button
+                        onClick={handleMoveAllToPantry}
+                        style={{
+                            borderRadius: '32px',
+                            padding: '12px 24px',
+                            boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            fontWeight: 'bold',
+                            background: 'hsl(var(--color-primary))',
+                            color: 'white',
+                            border: '1px solid rgba(255,255,255,0.2)'
+                        }}
+                    >
+                        <Archive size={20} />
+                        Move {completedCount} to Pantry
+                    </Button>
                 </div>
             )}
 

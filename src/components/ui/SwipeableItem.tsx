@@ -22,20 +22,25 @@ export const SwipeableItem: React.FC<SwipeableItemProps> = ({
     const bgOpacity = useTransform(x, [-50, 0, 50], [1, 0, 1]);
 
     // Transform color/icon visibility for Left vs Right
-    const leftActionOpacity = useTransform(x, [0, 50], [0, 1]);
-    const rightActionOpacity = useTransform(x, [-50, 0], [1, 0]);
+    // Use wider range to ensure safe clamping
+    const leftActionOpacity = useTransform(x, [-50, 0, 50], [0, 0, 1]); // Complete (Right Swipe)
+    const rightActionOpacity = useTransform(x, [-50, 0, 50], [1, 0, 0]); // Delete (Left Swipe)
 
     const handleDragEnd = async (_: any, info: PanInfo) => {
         const offset = info.offset.x;
         const velocity = info.velocity.x;
 
         if (onSwipeRight && (offset > threshold || velocity > 400)) {
-            await controls.start({ x: 500, opacity: 0 });
+            // Trigger action first (Toggle)
             onSwipeRight();
+            // Snap back to center so item is visible again
+            await controls.start({ x: 0, opacity: 1, transition: { type: 'spring', stiffness: 300, damping: 25 } });
         } else if (onSwipeLeft && (offset < -threshold || velocity < -400)) {
+            // Dismiss item (Delete)
             await controls.start({ x: -500, opacity: 0 });
             onSwipeLeft();
         } else {
+            // Return to center if not enough swipe
             controls.start({ x: 0, opacity: 1 });
         }
     };

@@ -13,10 +13,12 @@ interface InventoryListProps {
     onDeleteItem: (id: string) => void;
     onEditItem?: (item: InventoryItem) => void;
 }
+import { SwipeableItem } from '../ui/SwipeableItem';
 
 export const InventoryList: React.FC<InventoryListProps> = ({ items, onAddItem, onDeleteItem }) => {
+    // ... (keep existing hooks)
     const { addTodo } = useTodos();
-    const { updateItem, seedData } = useInventory(); // We need this to toggle status
+    const { updateItem, seedData } = useInventory();
     const [toast, setToast] = React.useState<{ show: boolean; msg: string }>({ show: false, msg: '' });
 
     const handleAddToShoppingList = (item: InventoryItem) => {
@@ -26,16 +28,10 @@ export const InventoryList: React.FC<InventoryListProps> = ({ items, onAddItem, 
     };
 
     const toggleStatus = (item: InventoryItem, newStatus: 'low' | 'full') => {
-        // If clicking the active status, maybe toggle off? Or just keep it.
-        // Let's assume clicking 'Low' sets it to low.
         updateItem(item.id, { stockLevel: newStatus });
-
-        if (newStatus === 'low') {
-            // Optional: Auto-prompt to shop?
-        }
     };
 
-    // Group items by category
+    // Group items by category (keep existing logic)
     const groupedItems = items.reduce((acc, item) => {
         const cat = item.category || 'Other';
         if (!acc[cat]) acc[cat] = [];
@@ -82,88 +78,93 @@ export const InventoryList: React.FC<InventoryListProps> = ({ items, onAddItem, 
                             </div>
 
                             {/* Items List */}
-                            <Card style={{ padding: '0', overflow: 'hidden' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
                                 {categoryItems.map((item, index) => (
-                                    <div
+                                    <SwipeableItem
                                         key={item.id}
-                                        style={{
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            padding: '16px',
-                                            borderBottom: index !== categoryItems.length - 1 ? '1px solid var(--glass-border)' : 'none',
-                                            background: item.stockLevel === 'low' ? 'rgba(239, 68, 68, 0.05)' : 'transparent'
-                                        }}
+                                        onSwipeLeft={() => onDeleteItem(item.id)}
                                     >
-                                        {/* Checkbox (Visual only for now, or maybe checks "consumed") */}
                                         <div
+                                            className="glass-panel"
                                             style={{
-                                                width: '20px', height: '20px',
-                                                border: '2px solid var(--text-muted)',
-                                                borderRadius: '4px',
-                                                marginRight: '16px',
-                                                cursor: 'pointer',
-                                                display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                padding: '16px',
+                                                background: item.stockLevel === 'low' ? 'rgba(239, 68, 68, 0.05)' : 'var(--color-surface)',
+                                                border: '1px solid var(--glass-border)',
+                                                borderRadius: '12px',
+                                                marginBottom: '8px'
                                             }}
-                                            onClick={() => handleAddToShoppingList(item)}
-                                            title="Add to Shopping List"
                                         >
-                                            {/* Empty square */}
-                                        </div>
-
-                                        {/* Name */}
-                                        <div style={{ flex: 1 }}>
-                                            <span style={{ fontWeight: 500, fontSize: '1rem' }}>{item.name}</span>
-                                        </div>
-
-                                        {/* Status Toggles */}
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                            <button
-                                                onClick={() => toggleStatus(item, 'low')}
-                                                className="tap-scale"
+                                            {/* Checkbox (Add to Shop) */}
+                                            <div
                                                 style={{
-                                                    background: 'none',
-                                                    border: 'none',
-                                                    fontSize: '0.8rem',
-                                                    fontWeight: '600',
-                                                    color: item.stockLevel === 'low' ? '#ef4444' : 'var(--text-muted)', // Red if low
+                                                    width: '24px', height: '24px',
+                                                    border: '2px solid var(--text-muted)',
+                                                    borderRadius: '6px',
+                                                    marginRight: '16px',
                                                     cursor: 'pointer',
-                                                    opacity: item.stockLevel === 'low' ? 1 : 0.5,
-                                                    transition: 'all 0.2s'
+                                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                    color: 'var(--text-muted)',
+                                                    opacity: 0.5
                                                 }}
+                                                onClick={() => handleAddToShoppingList(item)}
+                                                title="Add to Shopping List"
                                             >
-                                                Low
-                                            </button>
+                                                <Plus size={14} />
+                                            </div>
 
-                                            <div style={{ width: '1px', height: '12px', background: 'var(--text-muted)', opacity: 0.3 }}></div>
+                                            {/* Name */}
+                                            <div style={{ flex: 1 }}>
+                                                <span style={{ fontWeight: 500, fontSize: '1rem' }}>{item.name}</span>
+                                            </div>
 
-                                            <button
-                                                onClick={() => toggleStatus(item, 'full')}
-                                                className="tap-scale"
-                                                style={{
-                                                    background: 'none',
-                                                    border: 'none',
-                                                    fontSize: '0.8rem',
-                                                    fontWeight: '600',
-                                                    color: item.stockLevel === 'full' ? '#10b981' : 'var(--text-muted)', // Green if full
-                                                    cursor: 'pointer',
-                                                    opacity: item.stockLevel === 'full' ? 1 : 0.5,
-                                                    transition: 'all 0.2s'
-                                                }}
-                                            >
-                                                Full
-                                            </button>
+                                            {/* Status Toggles */}
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                <button
+                                                    onClick={() => toggleStatus(item, 'low')}
+                                                    className="tap-scale"
+                                                    style={{
+                                                        background: 'none',
+                                                        border: 'none',
+                                                        fontSize: '0.8rem',
+                                                        fontWeight: '600',
+                                                        color: item.stockLevel === 'low' ? '#ef4444' : 'var(--text-muted)',
+                                                        cursor: 'pointer',
+                                                        opacity: item.stockLevel === 'low' ? 1 : 0.4,
+                                                        transition: 'all 0.2s',
+                                                        padding: '4px 8px',
+                                                        background: item.stockLevel === 'low' ? 'rgba(239, 68, 68, 0.1)' : 'transparent',
+                                                        borderRadius: '8px'
+                                                    }}
+                                                >
+                                                    Low
+                                                </button>
 
-                                            {/* Menu / Delete */}
-                                            <button
-                                                onClick={() => onDeleteItem(item.id)}
-                                                style={{ marginLeft: '12px', opacity: 0.3, background: 'none', border: 'none', cursor: 'pointer' }}
-                                            >
-                                                <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'currentColor', boxShadow: '0 6px 0 currentColor, 0 -6px 0 currentColor' }}></div>
-                                            </button>
+                                                <button
+                                                    onClick={() => toggleStatus(item, 'full')}
+                                                    className="tap-scale"
+                                                    style={{
+                                                        background: 'none',
+                                                        border: 'none',
+                                                        fontSize: '0.8rem',
+                                                        fontWeight: '600',
+                                                        color: item.stockLevel === 'full' ? '#10b981' : 'var(--text-muted)',
+                                                        cursor: 'pointer',
+                                                        opacity: item.stockLevel === 'full' ? 1 : 0.4,
+                                                        transition: 'all 0.2s',
+                                                        padding: '4px 8px',
+                                                        background: item.stockLevel === 'full' ? 'rgba(16, 185, 129, 0.1)' : 'transparent',
+                                                        borderRadius: '8px'
+                                                    }}
+                                                >
+                                                    Full
+                                                </button>
+                                            </div>
                                         </div>
-                                    </div>
+                                    </SwipeableItem>
                                 ))}
-                            </Card>
+                            </div>
                         </div>
                     ))}
                 </div>
