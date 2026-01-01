@@ -7,7 +7,7 @@ export interface OFFProduct {
 
 export async function fetchProduct(barcode: string): Promise<OFFProduct | null> {
     try {
-        const response = await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`);
+        const response = await fetch(`https://ma.openfoodfacts.org/api/v0/product/${barcode}.json`);
 
         if (!response.ok) {
             return null;

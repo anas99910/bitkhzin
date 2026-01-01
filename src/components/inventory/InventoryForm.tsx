@@ -110,11 +110,11 @@ export const InventoryForm: React.FC<InventoryFormProps> = ({ initialValues, onS
 
     return (
         <div className="animate-slide-up">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                <h2 className="text-title" style={{ margin: 0 }}>{initialValues ? 'Edit Item' : 'Add New Item'}</h2>
-                <Button variant="secondary" onClick={() => setShowScanner(true)}>
-                    <ScanBarcode size={18} />
-                    <span style={{ marginLeft: '8px' }}>Scan Barcode</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
+                <h2 className="text-title" style={{ margin: 0, whiteSpace: 'nowrap' }}>{initialValues ? 'Edit Item' : 'Add New Item'}</h2>
+                <Button variant="secondary" onClick={() => setShowScanner(true)} style={{ padding: '8px 12px', fontSize: '0.85rem' }}>
+                    <ScanBarcode size={16} />
+                    <span style={{ marginLeft: '6px' }}>Scan</span>
                 </Button>
             </div>
 

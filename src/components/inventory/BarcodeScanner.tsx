@@ -11,8 +11,25 @@ interface BarcodeScannerProps {
 export const BarcodeScanner: React.FC<BarcodeScannerProps> = ({ onResult, onClose }) => {
     const [error, setError] = useState<string | null>(null);
 
+    const playBeep = () => {
+        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(1000, audioContext.currentTime); // 1000Hz tone
+        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime); // Low volume
+
+        oscillator.start();
+        oscillator.stop(audioContext.currentTime + 0.1); // Short beep (100ms)
+    };
+
     const { ref } = useZxing({
         onDecodeResult(result) {
+            playBeep();
             onResult(result.getText());
         },
         onError(err) {

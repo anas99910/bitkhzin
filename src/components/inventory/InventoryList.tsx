@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { InventoryItem } from '../../types/inventory';
 import { Button } from '../ui/Button';
 import { Plus, Check } from 'lucide-react';
@@ -131,7 +132,12 @@ export const InventoryList: React.FC<InventoryListProps> = ({ items, onAddItem, 
             ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                     {Object.entries(groupedItems).map(([category, categoryItems], groupIndex) => (
-                        <div key={category} className="animate-slide-up" style={{ animationDelay: `${groupIndex * 50}ms` }}>
+                        <motion.div
+                            key={category}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: groupIndex * 0.1, duration: 0.4 }}
+                        >
                             {/* Category Header */}
                             <div style={{
                                 display: 'flex',
@@ -153,123 +159,133 @@ export const InventoryList: React.FC<InventoryListProps> = ({ items, onAddItem, 
 
                             {/* Items List */}
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
-                                {categoryItems.map((item) => (
-                                    <SwipeableItem
-                                        key={item.id}
-                                        onSwipeLeft={() => onDeleteItem(item.id)}
-                                        disabled={isSelectionMode} // Disable swipe in selection mode
-                                    >
-                                        <div
-                                            className="glass-panel"
-                                            onClick={() => {
-                                                if (isSelectionMode) toggleSelection(item.id);
-                                            }}
-                                            style={{
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                padding: '16px',
-                                                background: selectedIds.has(item.id)
-                                                    ? 'rgba(99, 102, 241, 0.1)'
-                                                    : (item.stockLevel === 'low' ? 'rgba(239, 68, 68, 0.05)' : 'var(--color-surface)'),
-                                                border: selectedIds.has(item.id)
-                                                    ? '1px solid var(--color-primary)'
-                                                    : '1px solid var(--glass-border)',
-                                                borderRadius: '12px',
-                                                marginBottom: '8px',
-                                                position: 'relative',
-                                                transition: 'all 0.2s'
-                                            }}
+                                <AnimatePresence initial={false} mode='popLayout'>
+                                    {categoryItems.map((item) => (
+                                        <motion.div
+                                            key={item.id}
+                                            layout
+                                            initial={{ opacity: 0, scale: 0.9 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
+                                            transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                                         >
-                                            {/* Selection Checkbox */}
-                                            {isSelectionMode ? (
-                                                <div style={{
-                                                    width: '24px', height: '24px',
-                                                    borderRadius: '6px',
-                                                    border: selectedIds.has(item.id) ? 'none' : '2px solid var(--text-muted)',
-                                                    background: selectedIds.has(item.id) ? 'var(--color-primary)' : 'transparent',
-                                                    marginRight: '16px',
-                                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                                    color: 'white'
-                                                }}>
-                                                    {selectedIds.has(item.id) && <Check size={16} />}
-                                                </div>
-                                            ) : (
-                                                /* Add to Shop Button (Only in normal mode) */
+                                            <SwipeableItem
+                                                onSwipeLeft={() => onDeleteItem(item.id)}
+                                                disabled={isSelectionMode} // Disable swipe in selection mode
+                                            >
                                                 <div
+                                                    className="glass-panel"
+                                                    onClick={() => {
+                                                        if (isSelectionMode) toggleSelection(item.id);
+                                                    }}
                                                     style={{
-                                                        width: '24px', height: '24px',
-                                                        border: '2px solid var(--text-muted)',
-                                                        borderRadius: '6px',
-                                                        marginRight: '16px',
-                                                        cursor: 'pointer',
-                                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                                        color: 'var(--text-muted)',
-                                                        opacity: 0.5
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        padding: '16px',
+                                                        background: selectedIds.has(item.id)
+                                                            ? 'rgba(99, 102, 241, 0.1)'
+                                                            : (item.stockLevel === 'low' ? 'rgba(239, 68, 68, 0.05)' : 'var(--color-surface)'),
+                                                        border: selectedIds.has(item.id)
+                                                            ? '1px solid var(--color-primary)'
+                                                            : '1px solid var(--glass-border)',
+                                                        borderRadius: '12px',
+                                                        marginBottom: '8px',
+                                                        position: 'relative',
+                                                        transition: 'all 0.2s'
                                                     }}
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        handleAddToShoppingList(item);
-                                                    }}
-                                                    title="Add to Shopping List"
                                                 >
-                                                    <Plus size={14} />
+                                                    {/* Selection Checkbox */}
+                                                    {isSelectionMode ? (
+                                                        <div style={{
+                                                            width: '24px', height: '24px',
+                                                            borderRadius: '6px',
+                                                            border: selectedIds.has(item.id) ? 'none' : '2px solid var(--text-muted)',
+                                                            background: selectedIds.has(item.id) ? 'var(--color-primary)' : 'transparent',
+                                                            marginRight: '16px',
+                                                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                            color: 'white'
+                                                        }}>
+                                                            {selectedIds.has(item.id) && <Check size={16} />}
+                                                        </div>
+                                                    ) : (
+                                                        /* Add to Shop Button (Only in normal mode) */
+                                                        <div
+                                                            style={{
+                                                                width: '24px', height: '24px',
+                                                                border: '2px solid var(--text-muted)',
+                                                                borderRadius: '6px',
+                                                                marginRight: '16px',
+                                                                cursor: 'pointer',
+                                                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                                color: 'var(--text-muted)',
+                                                                opacity: 0.5
+                                                            }}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleAddToShoppingList(item);
+                                                            }}
+                                                            title="Add to Shopping List"
+                                                        >
+                                                            <Plus size={14} />
+                                                        </div>
+                                                    )}
+
+                                                    {/* Name (Click to Edit) */}
+                                                    <div style={{ flex: 1 }} onClick={() => !isSelectionMode && setEditingItem(item)}>
+                                                        <span style={{ fontWeight: 500, fontSize: '1rem', cursor: !isSelectionMode ? 'pointer' : 'default' }}>
+                                                            {item.name}
+                                                        </span>
+                                                    </div>
+
+                                                    {/* Status Toggles (Hidden in selection mode?) - Keeping visible but non-interactive logic maybe? */}
+                                                    {!isSelectionMode && (
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                            <button
+                                                                onClick={(e) => { e.stopPropagation(); toggleStatus(item, 'low'); }}
+                                                                className="tap-scale"
+                                                                style={{
+                                                                    background: item.stockLevel === 'low' ? 'rgba(239, 68, 68, 0.1)' : 'transparent',
+                                                                    border: 'none',
+                                                                    fontSize: '0.8rem',
+                                                                    fontWeight: '600',
+                                                                    color: item.stockLevel === 'low' ? '#ef4444' : 'var(--text-muted)',
+                                                                    cursor: 'pointer',
+                                                                    opacity: item.stockLevel === 'low' ? 1 : 0.4,
+                                                                    transition: 'all 0.2s',
+                                                                    padding: '4px 8px',
+                                                                    borderRadius: '8px'
+                                                                }}
+                                                            >
+                                                                Low
+                                                            </button>
+
+                                                            <button
+                                                                onClick={(e) => { e.stopPropagation(); toggleStatus(item, 'full'); }}
+                                                                className="tap-scale"
+                                                                style={{
+                                                                    background: item.stockLevel === 'full' ? 'rgba(16, 185, 129, 0.1)' : 'transparent',
+                                                                    border: 'none',
+                                                                    fontSize: '0.8rem',
+                                                                    fontWeight: '600',
+                                                                    color: item.stockLevel === 'full' ? '#10b981' : 'var(--text-muted)',
+                                                                    cursor: 'pointer',
+                                                                    opacity: item.stockLevel === 'full' ? 1 : 0.4,
+                                                                    transition: 'all 0.2s',
+                                                                    padding: '4px 8px',
+                                                                    borderRadius: '8px'
+                                                                }}
+                                                            >
+                                                                Full
+                                                            </button>
+                                                        </div>
+                                                    )}
                                                 </div>
-                                            )}
-
-                                            {/* Name (Click to Edit) */}
-                                            <div style={{ flex: 1 }} onClick={() => !isSelectionMode && setEditingItem(item)}>
-                                                <span style={{ fontWeight: 500, fontSize: '1rem', cursor: !isSelectionMode ? 'pointer' : 'default' }}>
-                                                    {item.name}
-                                                </span>
-                                            </div>
-
-                                            {/* Status Toggles (Hidden in selection mode?) - Keeping visible but non-interactive logic maybe? */}
-                                            {!isSelectionMode && (
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                    <button
-                                                        onClick={(e) => { e.stopPropagation(); toggleStatus(item, 'low'); }}
-                                                        className="tap-scale"
-                                                        style={{
-                                                            background: item.stockLevel === 'low' ? 'rgba(239, 68, 68, 0.1)' : 'transparent',
-                                                            border: 'none',
-                                                            fontSize: '0.8rem',
-                                                            fontWeight: '600',
-                                                            color: item.stockLevel === 'low' ? '#ef4444' : 'var(--text-muted)',
-                                                            cursor: 'pointer',
-                                                            opacity: item.stockLevel === 'low' ? 1 : 0.4,
-                                                            transition: 'all 0.2s',
-                                                            padding: '4px 8px',
-                                                            borderRadius: '8px'
-                                                        }}
-                                                    >
-                                                        Low
-                                                    </button>
-
-                                                    <button
-                                                        onClick={(e) => { e.stopPropagation(); toggleStatus(item, 'full'); }}
-                                                        className="tap-scale"
-                                                        style={{
-                                                            background: item.stockLevel === 'full' ? 'rgba(16, 185, 129, 0.1)' : 'transparent',
-                                                            border: 'none',
-                                                            fontSize: '0.8rem',
-                                                            fontWeight: '600',
-                                                            color: item.stockLevel === 'full' ? '#10b981' : 'var(--text-muted)',
-                                                            cursor: 'pointer',
-                                                            opacity: item.stockLevel === 'full' ? 1 : 0.4,
-                                                            transition: 'all 0.2s',
-                                                            padding: '4px 8px',
-                                                            borderRadius: '8px'
-                                                        }}
-                                                    >
-                                                        Full
-                                                    </button>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </SwipeableItem>
-                                ))}
+                                            </SwipeableItem>
+                                        </motion.div>
+                                    ))}
+                                </AnimatePresence>
                             </div>
-                        </div>
+                        </motion.div>
                     ))}
                 </div>
             )}

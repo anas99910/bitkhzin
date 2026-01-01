@@ -1,4 +1,5 @@
 import { useState, useEffect, Suspense, lazy } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Layout } from './components/layout/Layout';
 // Lazy Load Views
 const InventoryList = lazy(() => import('./components/inventory/InventoryList').then(module => ({ default: module.InventoryList })));
@@ -265,7 +266,18 @@ function App() {
           <Loader2 className="animate-spin" size={32} color="hsl(var(--color-primary))" />
         </div>
       }>
-        {renderContent()}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={view}
+            initial={{ opacity: 0, y: 20, filter: 'blur(10px)' }}
+            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+            exit={{ opacity: 0, y: -20, filter: 'blur(10px)' }}
+            transition={{ duration: 0.3, ease: 'easeOut' }}
+            style={{ height: '100%' }}
+          >
+            {renderContent()}
+          </motion.div>
+        </AnimatePresence>
       </Suspense>
       <Toast
         isVisible={toast.show}

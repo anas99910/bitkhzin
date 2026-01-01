@@ -187,8 +187,30 @@ export const TodoView: React.FC = () => {
             {/* Task List */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                 {todos.length === 0 && (
-                    <div style={{ textAlign: 'center', padding: '40px', opacity: 0.5 }}>
-                        <p>Your shopping list is empty.</p>
+                    <div className="glass-panel" style={{
+                        textAlign: 'center',
+                        padding: '40px 20px',
+                        marginTop: '20px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: '16px'
+                    }}>
+                        <div style={{
+                            width: '64px',
+                            height: '64px',
+                            borderRadius: '50%',
+                            background: 'rgba(var(--color-primary), 0.1)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                        }}>
+                            <Archive size={32} style={{ opacity: 0.5 }} />
+                        </div>
+                        <div>
+                            <p style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '4px' }}>Your list is empty</p>
+                            <p className="text-muted" style={{ fontSize: '0.9rem' }}>Add items above or check your history</p>
+                        </div>
                     </div>
                 )}
 
