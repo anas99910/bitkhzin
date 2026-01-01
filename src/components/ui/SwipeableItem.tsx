@@ -7,13 +7,15 @@ interface SwipeableItemProps {
     onSwipeLeft?: () => void; // Usually Delete
     onSwipeRight?: () => void; // Usually Complete or Archive
     threshold?: number;
+    disabled?: boolean;
 }
 
 export const SwipeableItem: React.FC<SwipeableItemProps> = ({
     children,
     onSwipeLeft,
     onSwipeRight,
-    threshold = 80 // Reduced threshold for easier deletion
+    threshold = 80, // Reduced threshold for easier deletion
+    disabled
 }) => {
     const controls = useAnimation();
     const x = useMotionValue(0);
@@ -27,6 +29,8 @@ export const SwipeableItem: React.FC<SwipeableItemProps> = ({
     const rightActionOpacity = useTransform(x, [-50, 0, 50], [1, 0, 0]); // Delete (Left Swipe)
 
     const handleDragEnd = async (_: any, info: PanInfo) => {
+        if (disabled) return;
+
         const offset = info.offset.x;
         const velocity = info.velocity.x;
 
@@ -83,7 +87,7 @@ export const SwipeableItem: React.FC<SwipeableItemProps> = ({
 
             {/* Foreground Content Layer */}
             <motion.div
-                drag="x"
+                drag={disabled ? false : "x"}
                 dragConstraints={{ left: 0, right: 0 }}
                 dragElastic={0.7}
                 onDragEnd={handleDragEnd}
@@ -92,10 +96,10 @@ export const SwipeableItem: React.FC<SwipeableItemProps> = ({
                     x, // Link motion value
                     position: 'relative',
                     zIndex: 10,
-                    cursor: 'grab',
+                    cursor: disabled ? 'default' : 'grab',
                     touchAction: 'pan-y'
                 }}
-                whileTap={{ cursor: 'grabbing' }}
+                whileTap={{ cursor: disabled ? 'default' : 'grabbing' }}
             >
                 {children}
             </motion.div>
