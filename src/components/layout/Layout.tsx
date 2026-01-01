@@ -1,5 +1,5 @@
 import React from 'react';
-import { Package, Settings, LogOut, ShoppingCart, Box } from 'lucide-react';
+import { Package, Settings, LogOut, ShoppingCart, ChefHat } from 'lucide-react';
 import { auth } from '../../lib/firebase';
 
 interface LayoutProps {
@@ -39,7 +39,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentView = 'invento
                         color: 'white',
                         boxShadow: '0 4px 12px rgba(99, 102, 241, 0.4)'
                     }}>
-                        <Box size={24} strokeWidth={2.5} />
+                        <ChefHat size={28} strokeWidth={2} />
                     </div>
                     <span style={{ fontSize: '1.25rem', fontWeight: 800, color: 'white', letterSpacing: '-0.02em' }}>
                         Bit Khzin
