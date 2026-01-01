@@ -124,7 +124,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentView = 'invento
                     <div
                         className="indicator"
                         style={{
-                            left: `calc(100% / 3 * ${(currentView === 'inventory' || currentView === 'add') ? 0 : currentView === 'todo' ? 1 : 2} + 100% / 6 - 35px)`
+                            left: `calc(100% / 3 * ${(currentView === 'inventory' || currentView === 'add') ? 0 : currentView === 'todo' ? 1 : 2} + 100% / 6 - 28px)`
                         }}
                     />
                 </ul>
