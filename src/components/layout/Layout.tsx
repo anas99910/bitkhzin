@@ -96,8 +96,8 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentView = 'invento
                 {/* ... existing mobile nav ... */}
                 <ul className="nav-list" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', width: '100%' }}>
 
-                    <li className={`nav-item ${currentView === 'inventory' ? 'active' : ''}`} style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
-                        <button className={`nav-link ${currentView === 'inventory' ? 'active' : ''}`} onClick={() => onNavigate?.('inventory')}>
+                    <li className={`nav-item ${(currentView === 'inventory' || currentView === 'add') ? 'active' : ''}`} style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+                        <button className={`nav-link ${(currentView === 'inventory' || currentView === 'add') ? 'active' : ''}`} onClick={() => onNavigate?.('inventory')}>
                             <span className="icon">
                                 <Package size={24} />
                             </span>
@@ -126,7 +126,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentView = 'invento
                     <div
                         className="indicator"
                         style={{
-                            left: `calc(100% / 3 * ${currentView === 'inventory' ? 0 : currentView === 'todo' ? 1 : 2} + 100% / 6 - 35px)`
+                            left: `calc(100% / 3 * ${(currentView === 'inventory' || currentView === 'add') ? 0 : currentView === 'todo' ? 1 : 2} + 100% / 6 - 35px)`
                         }}
                     />
                 </ul>

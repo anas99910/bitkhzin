@@ -158,7 +158,7 @@ function App() {
               <hr style={{ margin: '16px 0', borderColor: 'var(--glass-border)', opacity: 0.3 }} />
 
               <div style={{ opacity: 0.6 }}>
-                <p>App Version: 1.2.0</p>
+                <p>App Version: 1.2.1</p>
                 <p>Account: {user.email}</p>
                 <p>Sync Status: Cloud (Firebase)</p>
 
