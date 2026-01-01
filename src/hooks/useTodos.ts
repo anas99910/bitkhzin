@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { db } from '../lib/firebase';
 import { collection, onSnapshot, addDoc, deleteDoc, updateDoc, doc, query, where } from 'firebase/firestore';
 import { useAuth } from '../context/AuthContext';
+import { useShoppingHistory } from './useShoppingHistory';
 
 export interface ShoppingItem {
     id: string;
@@ -44,6 +45,8 @@ export const useTodos = () => {
         return () => unsubscribe();
     }, [user, userProfile?.householdId]);
 
+    const { addToHistory } = useShoppingHistory();
+
     const addTodo = async (text: string, quantity: number = 1, category: string = 'Other') => {
         if (!text.trim() || !user || !userProfile?.householdId) return;
 
@@ -58,6 +61,9 @@ export const useTodos = () => {
             createdAt: Date.now(),
         };
         setTodos(prev => [newTodo, ...prev]);
+
+        // Track in History
+        addToHistory(text, category);
 
         try {
             await addDoc(collection(db, 'shopping-list'), {

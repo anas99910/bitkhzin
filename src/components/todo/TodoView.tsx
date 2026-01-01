@@ -8,14 +8,21 @@ import { Dropdown } from '../ui/Dropdown';
 import { Card } from '../ui/Card';
 import { useCategories } from '../../context/CategoriesContext';
 import { Toast } from '../ui/Toast';
+import { useShoppingHistory } from '../../hooks/useShoppingHistory';
 
 export const TodoView: React.FC = () => {
     const { todos, addTodo, toggleTodo, deleteTodo } = useTodos();
     const { addItem } = useInventory();
     const { categories } = useCategories();
+    const { frequentItems } = useShoppingHistory();
     const [inputText, setInputText] = useState('');
     const [quantity, setQuantity] = useState(1);
     const [category, setCategory] = useState(categories[0] || 'Other');
+
+    const handleQuickAdd = (item: any) => {
+        addTodo(item.text, 1, item.category);
+        showToast(`Added ${item.text}`, 'success');
+    };
 
     // Toast state
     const [toast, setToast] = useState<{ show: boolean; msg: string; type: 'success' | 'error' | 'info'; actionLabel?: string; onAction?: () => void }>({
@@ -86,6 +93,46 @@ export const TodoView: React.FC = () => {
 
             {/* Input Area */}
             <Card className="mb-6">
+                {/* Quick Add Suggestions */}
+                {frequentItems.length > 0 && (
+                    <div style={{
+                        display: 'flex',
+                        gap: '8px',
+                        overflowX: 'auto',
+                        paddingBottom: '12px',
+                        marginBottom: '12px',
+                        borderBottom: '1px solid var(--glass-border)',
+                        scrollbarWidth: 'none',
+                        msOverflowStyle: 'none',
+                    }} className="no-scrollbar">
+                        {frequentItems.map(item => (
+                            <button
+                                key={item.id}
+                                onClick={() => handleQuickAdd(item)}
+                                type="button"
+                                style={{
+                                    whiteSpace: 'nowrap',
+                                    padding: '6px 12px',
+                                    borderRadius: '20px',
+                                    border: '1px solid var(--glass-border)',
+                                    background: 'rgba(255,255,255,0.05)',
+                                    color: 'var(--text-secondary)',
+                                    fontSize: '0.85rem',
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '6px',
+                                    transition: 'all 0.2s',
+                                    flexShrink: 0
+                                }}
+                            >
+                                <Plus size={12} />
+                                {item.text}
+                            </button>
+                        ))}
+                    </div>
+                )}
+
                 <form onSubmit={handleAdd} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     {/* Row 1: Qty + Name */}
                     <div style={{ display: 'flex', gap: '12px' }}>

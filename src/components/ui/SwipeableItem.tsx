@@ -92,15 +92,10 @@ export const SwipeableItem: React.FC<SwipeableItemProps> = ({
                     x, // Link motion value
                     position: 'relative',
                     zIndex: 10,
-                    // Use a more opaque background to prevent bleed-through
-                    // 'var(--color-surface)' is solid, 'var(--glass-bg)' is transparent
-                    // We need solid here, or at least very blurry/sem-opaque.
-                    // Given the design, let's use the surface light color which is common for cards.
-                    background: 'var(--color-surface-light)',
-                    border: '1px solid rgba(255,255,255,0.05)',
-                    borderRadius: 'var(--radius-md)',
-                    userSelect: 'none'
+                    cursor: 'grab',
+                    touchAction: 'pan-y'
                 }}
+                whileTap={{ cursor: 'grabbing' }}
             >
                 {children}
             </motion.div>

@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense, lazy } from 'react';
 import { Layout } from './components/layout/Layout';
-import { InventoryList } from './components/inventory/InventoryList';
-import { InventoryForm } from './components/inventory/InventoryForm';
-import { TodoView } from './components/todo/TodoView';
+// Lazy Load Views
+const InventoryList = lazy(() => import('./components/inventory/InventoryList').then(module => ({ default: module.InventoryList })));
+const InventoryForm = lazy(() => import('./components/inventory/InventoryForm').then(module => ({ default: module.InventoryForm })));
+const TodoView = lazy(() => import('./components/todo/TodoView').then(module => ({ default: module.TodoView })));
+
 import { useInventory } from './hooks/useInventory';
 import { Card } from './components/ui/Card';
 import { Button } from './components/ui/Button';
@@ -13,6 +15,7 @@ import { AuthScreen } from './components/auth/AuthScreen';
 import { auth } from './lib/firebase';
 import { useCategories } from './context/CategoriesContext';
 import { Trash2, Plus } from 'lucide-react';
+import { Toast } from './components/ui/Toast';
 
 const CategoryManager = () => {
   const { customCategories, addCategory, removeCategory } = useCategories();
@@ -73,6 +76,16 @@ function App() {
     const saved = localStorage.getItem('currentView');
     return (saved as any) || 'inventory';
   });
+
+  // Toast state
+  const [toast, setToast] = useState<{ show: boolean; msg: string; type: 'success' | 'error' | 'info' }>(
+    { show: false, msg: '', type: 'success' }
+  );
+
+  const showToast = (msg: string, type: 'success' | 'error' | 'info' = 'success') => {
+    setToast({ show: true, msg, type });
+    setTimeout(() => setToast(prev => ({ ...prev, show: false })), 3000);
+  };
 
   // Persist View
   useEffect(() => {
@@ -169,9 +182,8 @@ function App() {
                 <p style={{ fontSize: '0.9rem', opacity: 0.7, marginBottom: '8px' }}>
                   Share this code with your family to sync your list:
                 </p>
-                <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
-                  <div style={{
-                    flex: 1,
+                <div
+                  style={{
                     background: 'rgba(0,0,0,0.05)',
                     padding: '12px',
                     borderRadius: '8px',
@@ -180,21 +192,17 @@ function App() {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis'
-                  }}>
-                    {userProfile?.householdId || 'Loading...'}
-                  </div>
-                  <Button
-                    size="sm"
-                    onClick={() => {
-                      navigator.clipboard.writeText(userProfile?.householdId || '');
-                      alert('Code copied!');
-                    }}
-                    style={{ whiteSpace: 'nowrap' }}
-                  >
-                    Copy Code
-                  </Button>
+                    marginBottom: '16px',
+                    cursor: 'pointer',
+                    userSelect: 'all'
+                  }}
+                  onClick={() => {
+                    navigator.clipboard.writeText(userProfile?.householdId || '');
+                    showToast('Code copied to clipboard!', 'success');
+                  }}
+                  title="Click to copy"
+                >
+                  {userProfile?.householdId || 'Loading...'}
                 </div>
 
                 <details>
@@ -264,7 +272,19 @@ function App() {
 
   return (
     <Layout currentView={view} onNavigate={(v) => setView(v as any)}>
-      {renderContent()}
+      <Suspense fallback={
+        <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Loader2 className="animate-spin" size={32} color="hsl(var(--color-primary))" />
+        </div>
+      }>
+        {renderContent()}
+      </Suspense>
+      <Toast
+        isVisible={toast.show}
+        message={toast.msg}
+        type={toast.type}
+        onClose={() => setToast(prev => ({ ...prev, show: false }))}
+      />
     </Layout>
   )
 }
