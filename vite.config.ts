@@ -14,8 +14,8 @@ export default defineConfig({
       includeAssets: ['favicon.png', 'apple-touch-icon.png', 'mask-icon.svg'],
       scope: './',
       manifest: {
-        name: 'Bitlkhzin',
-        short_name: 'Bitlkhzin',
+        name: 'Tqadiya',
+        short_name: 'Tqadiya',
         description: 'Premium Household Inventory Management',
         theme_color: '#14171f',
         start_url: './',

@@ -42,7 +42,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentView = 'invento
                         <ChefHat size={28} strokeWidth={2} />
                     </div>
                     <span style={{ fontSize: '1.25rem', fontWeight: 800, color: 'white', letterSpacing: '-0.02em' }}>
-                        Bit Khzin
+                        Tqadiya
                     </span>
                 </div>
 
