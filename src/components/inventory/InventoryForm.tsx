@@ -9,19 +9,20 @@ import { useCategories } from '../../context/CategoriesContext';
 import { fetchProduct } from '../../lib/openfoodfacts';
 
 interface InventoryFormProps {
+    initialValues?: InventoryItem;
     onSubmit: (item: Omit<InventoryItem, 'id' | 'createdAt' | 'updatedAt'>) => void;
     onCancel: () => void;
 }
 
-export const InventoryForm: React.FC<InventoryFormProps> = ({ onSubmit, onCancel }) => {
+export const InventoryForm: React.FC<InventoryFormProps> = ({ initialValues, onSubmit, onCancel }) => {
     // State
-    const [name, setName] = useState('');
+    const [name, setName] = useState(initialValues?.name || '');
     const [suggestions, setSuggestions] = useState<string[]>([]);
-    const [category, setCategory] = useState('');
+    const [category, setCategory] = useState(initialValues?.category || '');
     // const [location, setLocation] = useState(DEFAULT_LOCATIONS[0]);
     // const [quantity, setQuantity] = useState(1);
     // const [value, setValue] = useState('');
-    const [barcode, setBarcode] = useState('');
+    const [barcode, setBarcode] = useState(initialValues?.barcode || '');
     // Image state removed
     const [showScanner, setShowScanner] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -110,7 +111,7 @@ export const InventoryForm: React.FC<InventoryFormProps> = ({ onSubmit, onCancel
     return (
         <div className="animate-slide-up">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                <h2 className="text-title" style={{ margin: 0 }}>Add New Item</h2>
+                <h2 className="text-title" style={{ margin: 0 }}>{initialValues ? 'Edit Item' : 'Add New Item'}</h2>
                 <Button variant="secondary" onClick={() => setShowScanner(true)}>
                     <ScanBarcode size={18} />
                     <span style={{ marginLeft: '8px' }}>Scan Barcode</span>
@@ -203,7 +204,7 @@ export const InventoryForm: React.FC<InventoryFormProps> = ({ onSubmit, onCancel
                     <div style={{ display: 'flex', gap: '12px', marginTop: '12px', justifyContent: 'flex-end' }}>
                         <Button type="button" variant="ghost" onClick={onCancel} style={{ color: 'var(--text-muted)' }}>Cancel</Button>
                         <Button type="submit" disabled={isSubmitting}>
-                            {isSubmitting ? <Loader2 className="animate-spin" size={18} /> : 'Add to Pantry'}
+                            {isSubmitting ? <Loader2 className="animate-spin" size={18} /> : (initialValues ? 'Save Changes' : 'Add to Pantry')}
                         </Button>
                     </div>
                 </form>
