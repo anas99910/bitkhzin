@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { db } from '../lib/firebase';
-import { collection, query, where, getDocs, doc, setDoc, updateDoc, increment, limit, orderBy } from 'firebase/firestore';
+import { collection, query, where, getDocs, doc, setDoc, increment, limit, orderBy } from 'firebase/firestore';
 import { useAuth } from '../context/AuthContext';
 
 export interface HistoryItem {
