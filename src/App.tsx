@@ -6,7 +6,7 @@ import { TodoView } from './components/todo/TodoView';
 import { useInventory } from './hooks/useInventory';
 import { Card } from './components/ui/Card';
 import { Button } from './components/ui/Button';
-import { Moon, Sun, Download, LogOut, Loader2 } from 'lucide-react';
+import { Moon, Sun, Download, LogOut, Loader2, RefreshCw } from 'lucide-react';
 import { useInstallPrompt } from './hooks/useInstallPrompt';
 import { useAuth } from './context/AuthContext';
 import { AuthScreen } from './components/auth/AuthScreen';
@@ -68,7 +68,18 @@ const CategoryManager = () => {
 };
 
 function App() {
-  const [view, setView] = useState<'inventory' | 'todo' | 'settings' | 'add'>('inventory');
+  const [view, setView] = useState<'inventory' | 'todo' | 'settings' | 'add'>(() => {
+    // Initialize from localStorage
+    const saved = localStorage.getItem('currentView');
+    return (saved as any) || 'inventory';
+  });
+
+  // Persist View
+  useEffect(() => {
+    localStorage.setItem('currentView', view);
+  }, [view]);
+
+
   const [darkMode, setDarkMode] = useState(() => {
     if (typeof window !== 'undefined') {
       return window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -139,6 +150,16 @@ function App() {
                 <p>App Version: 1.1.0</p>
                 <p>Account: {user.email}</p>
                 <p>Sync Status: Cloud (Firebase)</p>
+
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => window.location.reload()}
+                  style={{ marginTop: '12px', width: '100%', justifyContent: 'center', gap: '8px' }}
+                >
+                  <RefreshCw size={16} />
+                  Check for Updates / Reload
+                </Button>
               </div>
 
               <hr style={{ margin: '16px 0', borderColor: 'var(--glass-border)', opacity: 0.3 }} />
@@ -148,14 +169,32 @@ function App() {
                 <p style={{ fontSize: '0.9rem', opacity: 0.7, marginBottom: '8px' }}>
                   Share this code with your family to sync your list:
                 </p>
-                <div style={{
-                  display: 'flex', gap: '8px', background: 'rgba(0,0,0,0.05)', padding: '12px', borderRadius: '8px',
-                  fontFamily: 'monospace', fontWeight: 'bold', justifyContent: 'center', marginBottom: '16px'
-                }} onClick={() => {
-                  navigator.clipboard.writeText(userProfile?.householdId || '');
-                  alert('Code copied!');
-                }}>
-                  {userProfile?.householdId || 'Loading...'}
+                <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+                  <div style={{
+                    flex: 1,
+                    background: 'rgba(0,0,0,0.05)',
+                    padding: '12px',
+                    borderRadius: '8px',
+                    fontFamily: 'monospace',
+                    fontWeight: 'bold',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis'
+                  }}>
+                    {userProfile?.householdId || 'Loading...'}
+                  </div>
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      navigator.clipboard.writeText(userProfile?.householdId || '');
+                      alert('Code copied!');
+                    }}
+                    style={{ whiteSpace: 'nowrap' }}
+                  >
+                    Copy Code
+                  </Button>
                 </div>
 
                 <details>
@@ -187,21 +226,23 @@ function App() {
                 Log Out
               </Button>
 
-              {isInstallable && (
-                <>
-                  <hr style={{ margin: '16px 0', borderColor: 'var(--glass-border)', opacity: 0.3 }} />
-                  <Button onClick={promptToInstall} style={{ width: '100%', display: 'flex', justifyContent: 'center', gap: '8px' }}>
-                    <Download size={18} />
-                    Install App
-                  </Button>
-                </>
-              )}
+              {
+                isInstallable && (
+                  <>
+                    <hr style={{ margin: '16px 0', borderColor: 'var(--glass-border)', opacity: 0.3 }} />
+                    <Button onClick={promptToInstall} style={{ width: '100%', display: 'flex', justifyContent: 'center', gap: '8px' }}>
+                      <Download size={18} />
+                      Install App
+                    </Button>
+                  </>
+                )
+              }
 
               <hr style={{ margin: '16px 0', borderColor: 'var(--glass-border)', opacity: 0.3 }} />
 
               <CategoryManager />
-            </Card>
-          </div>
+            </Card >
+          </div >
         );
 
       case 'todo':

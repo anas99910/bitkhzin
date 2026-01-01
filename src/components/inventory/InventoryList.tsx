@@ -1,6 +1,5 @@
 import React from 'react';
 import { InventoryItem } from '../../types/inventory';
-import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { Plus } from 'lucide-react';
 import { useTodos } from '../../hooks/useTodos';
@@ -79,7 +78,7 @@ export const InventoryList: React.FC<InventoryListProps> = ({ items, onAddItem, 
 
                             {/* Items List */}
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
-                                {categoryItems.map((item, index) => (
+                                {categoryItems.map((item) => (
                                     <SwipeableItem
                                         key={item.id}
                                         onSwipeLeft={() => onDeleteItem(item.id)}
@@ -125,7 +124,8 @@ export const InventoryList: React.FC<InventoryListProps> = ({ items, onAddItem, 
                                                     onClick={() => toggleStatus(item, 'low')}
                                                     className="tap-scale"
                                                     style={{
-                                                        background: 'none',
+                                                        // Combined background logic
+                                                        background: item.stockLevel === 'low' ? 'rgba(239, 68, 68, 0.1)' : 'transparent',
                                                         border: 'none',
                                                         fontSize: '0.8rem',
                                                         fontWeight: '600',
@@ -134,7 +134,6 @@ export const InventoryList: React.FC<InventoryListProps> = ({ items, onAddItem, 
                                                         opacity: item.stockLevel === 'low' ? 1 : 0.4,
                                                         transition: 'all 0.2s',
                                                         padding: '4px 8px',
-                                                        background: item.stockLevel === 'low' ? 'rgba(239, 68, 68, 0.1)' : 'transparent',
                                                         borderRadius: '8px'
                                                     }}
                                                 >
@@ -145,7 +144,8 @@ export const InventoryList: React.FC<InventoryListProps> = ({ items, onAddItem, 
                                                     onClick={() => toggleStatus(item, 'full')}
                                                     className="tap-scale"
                                                     style={{
-                                                        background: 'none',
+                                                        // Combined background logic
+                                                        background: item.stockLevel === 'full' ? 'rgba(16, 185, 129, 0.1)' : 'transparent',
                                                         border: 'none',
                                                         fontSize: '0.8rem',
                                                         fontWeight: '600',
@@ -154,7 +154,6 @@ export const InventoryList: React.FC<InventoryListProps> = ({ items, onAddItem, 
                                                         opacity: item.stockLevel === 'full' ? 1 : 0.4,
                                                         transition: 'all 0.2s',
                                                         padding: '4px 8px',
-                                                        background: item.stockLevel === 'full' ? 'rgba(16, 185, 129, 0.1)' : 'transparent',
                                                         borderRadius: '8px'
                                                     }}
                                                 >

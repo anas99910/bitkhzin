@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { useTodos } from '../../hooks/useTodos';
 import { useInventory } from '../../hooks/useInventory';
-import { Button } from '../ui/Button';
-import { Plus, CheckCircle, Archive } from 'lucide-react';
-// removed unused imports
-import { Card } from '../ui/Card';
 import { SwipeableItem } from '../ui/SwipeableItem';
-import { Toast } from '../ui/Toast';
+import { Plus, GripVertical, Check } from 'lucide-react'; // Removing Trash2 fallback if not needed
+import { Button } from '../ui/Button';
+import { Dropdown } from '../ui/Dropdown';
+import { Card } from '../ui/Card';
 import { useCategories } from '../../context/CategoriesContext';
+import { Toast } from '../ui/Toast';
 
 export const TodoView: React.FC = () => {
     const { todos, addTodo, toggleTodo, deleteTodo } = useTodos();
@@ -55,7 +55,7 @@ export const TodoView: React.FC = () => {
         const completed = todos.filter(t => t.completed);
         if (completed.length === 0) return;
 
-        if (confirm(`Move ${completed.length} items to pantry?`)) {
+        if (confirm(`Move ${completed.length} items to pantry ? `)) {
             completed.forEach(t => {
                 addItem({
                     name: t.text,
@@ -123,21 +123,12 @@ export const TodoView: React.FC = () => {
 
                     {/* Row 2: Category + Add Button */}
                     <div style={{ display: 'flex', gap: '12px' }}>
-                        <select
+                        <Dropdown
                             value={category}
-                            onChange={(e) => setCategory(e.target.value as any)}
-                            className="glass-panel"
-                            style={{
-                                flex: 1,
-                                padding: '12px',
-                                background: 'rgba(255,255,255,0.05)',
-                                outline: 'none',
-                                cursor: 'pointer',
-                                border: '1px solid var(--glass-border)'
-                            }}
-                        >
-                            {categories.map(c => <option key={c} value={c}>{c}</option>)}
-                        </select>
+                            onChange={(val) => setCategory(val)}
+                            options={categories.map(c => ({ value: c, label: c }))}
+                            placeholder="Category"
+                        />
 
                         <Button type="submit" disabled={!inputText.trim()} style={{ width: '60px', padding: '0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                             <Plus size={24} />
@@ -236,34 +227,36 @@ export const TodoView: React.FC = () => {
             </div>
 
             {/* Floating "Done Shopping" Button */}
-            {completedCount > 0 && (
-                <div className="animate-slide-up" style={{
-                    position: 'fixed',
-                    bottom: '90px',
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    zIndex: 20
-                }}>
-                    <Button
-                        onClick={handleMoveAllToPantry}
-                        style={{
-                            borderRadius: '32px',
-                            padding: '12px 24px',
-                            boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            fontWeight: 'bold',
-                            background: 'hsl(var(--color-primary))',
-                            color: 'white',
-                            border: '1px solid rgba(255,255,255,0.2)'
-                        }}
-                    >
-                        <Archive size={20} />
-                        Move {completedCount} to Pantry
-                    </Button>
-                </div>
-            )}
+            {
+                completedCount > 0 && (
+                    <div className="animate-slide-up" style={{
+                        position: 'fixed',
+                        bottom: '90px',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        zIndex: 20
+                    }}>
+                        <Button
+                            onClick={handleMoveAllToPantry}
+                            style={{
+                                borderRadius: '32px',
+                                padding: '12px 24px',
+                                boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                fontWeight: 'bold',
+                                background: 'hsl(var(--color-primary))',
+                                color: 'white',
+                                border: '1px solid rgba(255,255,255,0.2)'
+                            }}
+                        >
+                            <Archive size={20} />
+                            Move {completedCount} to Pantry
+                        </Button>
+                    </div>
+                )
+            }
 
             <Toast
                 isVisible={toast.show}
