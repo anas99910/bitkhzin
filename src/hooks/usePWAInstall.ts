@@ -37,11 +37,11 @@ export const usePWAInstall = () => {
         return () => window.removeEventListener('beforeinstallprompt', handler);
     }, []);
 
-    const triggerInstall = async () => {
+    const triggerInstall = async (): Promise<boolean> => {
         const promptEvent = window.deferredPrompt;
         if (!promptEvent) {
             console.warn('[PWA] No prompt event available to trigger');
-            return;
+            return false;
         }
 
         await promptEvent.prompt();
@@ -52,6 +52,7 @@ export const usePWAInstall = () => {
         // Clear the saved prompt since it can't be used again
         window.deferredPrompt = null;
         setCanInstall(false);
+        return true;
     };
 
     return { canInstall, triggerInstall };

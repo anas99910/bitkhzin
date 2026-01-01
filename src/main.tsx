@@ -6,6 +6,7 @@ import { AuthProvider } from './context/AuthContext';
 import { CategoriesProvider } from './context/CategoriesContext';
 import { registerSW } from 'virtual:pwa-register';
 
+
 // Register PWA Service Worker
 const updateSW = registerSW({
   onNeedRefresh() {

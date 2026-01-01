@@ -9,7 +9,7 @@ import { useInventory } from './hooks/useInventory';
 import { Card } from './components/ui/Card';
 import { Button } from './components/ui/Button';
 import { Moon, Sun, LogOut, Loader2, RefreshCw } from 'lucide-react';
-import { InstallButton } from './components/ui/InstallButton';
+import { AppInstallButton } from './components/ui/AppInstallButton';
 import { useAuth } from './context/AuthContext';
 import { AuthScreen } from './components/auth/AuthScreen';
 import { auth } from './lib/firebase';
@@ -158,7 +158,7 @@ function App() {
               <hr style={{ margin: '16px 0', borderColor: 'var(--glass-border)', opacity: 0.3 }} />
 
               <div style={{ opacity: 0.6 }}>
-                <p>App Version: 1.1.0</p>
+                <p>App Version: 1.2.0</p>
                 <p>Account: {user.email}</p>
                 <p>Sync Status: Cloud (Firebase)</p>
 
@@ -232,7 +232,7 @@ function App() {
                 Log Out
               </Button>
 
-              <InstallButton />
+              <AppInstallButton />
 
               <hr style={{ margin: '16px 0', borderColor: 'var(--glass-border)', opacity: 0.3 }} />
 

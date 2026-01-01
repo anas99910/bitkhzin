@@ -12,13 +12,20 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.png', 'apple-touch-icon.png', 'mask-icon.svg'],
-      scope: './',
+      scope: '/',
+      workbox: {
+        cleanupOutdatedCaches: true,
+        clientsClaim: true,
+        skipWaiting: true
+      },
       manifest: {
+        id: '/',
         name: 'Tqadiya',
         short_name: 'Tqadiya',
         description: 'Premium Household Inventory Management',
         theme_color: '#14171f',
-        start_url: './',
+        start_url: '/',
+        orientation: 'portrait',
         display: 'standalone',
         background_color: '#14171f',
         icons: [
@@ -40,6 +47,9 @@ export default defineConfig({
             purpose: 'maskable'
           }
         ]
+      },
+      devOptions: {
+        enabled: true
       }
     })
   ],
