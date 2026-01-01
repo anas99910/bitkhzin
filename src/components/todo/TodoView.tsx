@@ -92,7 +92,7 @@ export const TodoView: React.FC = () => {
             <h2 className="text-title">Shopping List</h2>
 
             {/* Input Area */}
-            <Card className="mb-6">
+            <Card className="mb-6" style={{ position: 'relative', zIndex: 10 }}>
                 {/* Quick Add Suggestions */}
                 {frequentItems.length > 0 && (
                     <div style={{

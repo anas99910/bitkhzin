@@ -130,17 +130,7 @@ export const Dropdown: React.FC<DropdownProps> = ({ value, onChange, options, pl
                 ))}
             </select>
 
-            {/* CSS to switch views */}
-            <style>{`
-                @media (min-width: 1025px) {
-                    .mobile-only-select { display: none !important; }
-                    .desktop-only-dropdown { display: block !important; }
-                }
-                @media (max-width: 1024px) {
-                    .mobile-only-select { display: block !important; }
-                    .desktop-only-dropdown { display: none !important; }
-                }
-            `}</style>
+            {/* CSS moved to global index.css */}
         </div>
     );
 };

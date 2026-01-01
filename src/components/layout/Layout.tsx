@@ -24,9 +24,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentView = 'invento
                     flexDirection: 'column',
                     padding: '32px 24px',
                     borderRadius: '32px',
-                    border: '1px solid rgba(255,255,255,0.08)',
-                    background: '#111827', // The Dark Website Color
-                    boxShadow: 'var(--shadow-lg)'
+                    // Background handled by class .glass-panel
                 }}
             >
                 {/* Logo */}
@@ -69,7 +67,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentView = 'invento
                 </nav>
 
                 {/* Bottom Actions */}
-                <div style={{ marginTop: 'auto', paddingTop: '24px', borderTop: '1px solid rgba(255,255,255,0.1)', width: '100%' }}>
+                <div style={{ marginTop: 'auto', paddingTop: '24px', borderTop: '1px solid rgba(255,255,255,0.05)', width: '100%' }}>
                     <NavItem
                         icon={<LogOut size={20} />}
                         label="Sign Out"
@@ -86,13 +84,13 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentView = 'invento
                 className="animate-fade-in"
                 style={{ flex: 1, padding: '24px', maxWidth: '100%', paddingBottom: '100px', marginLeft: '0' }}
             >
-                <div style={{ maxWidth: '800px', margin: '0 auto', width: '100%' }}>
+                <div style={{ maxWidth: '900px', margin: '0 auto', width: '100%' }}>
                     {children}
                 </div>
             </main>
 
             {/* Bottom Nav - Mobile */}
-            <div className="mobile-nav-container mobile-only" style={{ position: 'fixed', bottom: 0, zIndex: 50 }}>
+            <div className="mobile-nav-container mobile-only" style={{ zIndex: 50 }}>
                 {/* ... existing mobile nav ... */}
                 <ul className="nav-list" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', width: '100%' }}>
 
@@ -161,19 +159,19 @@ const NavItem: React.FC<NavItemProps> = ({ icon, label, active = false, onClick,
             display: 'flex',
             alignItems: 'center',
             gap: '16px',
-            padding: '16px 20px',
+            padding: '16px 24px',
             width: '100%',
             borderRadius: '20px', // More organic roundness
-            border: 'none',
-            // Active State: White background + Blue Glow Shadow
-            background: active ? 'white' : 'transparent',
-            boxShadow: active ? '0 8px 20px -4px rgba(59, 130, 246, 0.4), 0 4px 8px -2px rgba(0,0,0,0.05)' : 'none',
+            border: active ? '1px solid rgba(59, 130, 246, 0.3)' : '1px solid transparent',
+            // Active State: Transparent blue tint
+            background: active ? 'rgba(59, 130, 246, 0.15)' : 'transparent',
+            boxShadow: active ? '0 0 20px -5px rgba(59, 130, 246, 0.3)' : 'none',
 
             // Text Colors
-            color: active ? '#1f2937' : (danger ? '#ef4444' : '#9ca3af'),
+            color: active ? '#60a5fa' : (danger ? '#ef4444' : 'rgba(255,255,255,0.6)'),
 
             cursor: 'pointer',
-            fontWeight: active ? 700 : 500,
+            fontWeight: active ? 600 : 500,
             transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
             textAlign: 'left',
             fontSize: '1rem',
@@ -181,9 +179,10 @@ const NavItem: React.FC<NavItemProps> = ({ icon, label, active = false, onClick,
         }}
     >
         <span style={{
-            color: active ? 'hsl(var(--color-primary))' : 'currentColor',
+            color: active ? '#60a5fa' : 'currentColor',
             display: 'flex',
-            alignItems: 'center'
+            alignItems: 'center',
+            filter: active ? 'drop-shadow(0 0 8px rgba(96, 165, 250, 0.5))' : 'none'
         }}>
             {icon}
         </span>

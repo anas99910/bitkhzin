@@ -26,16 +26,50 @@
   --radius-lg: 20px;
   --radius-full: 9999px;
 
+  --color-surface: hsl(var(--color-surface-light));
+  /* Default to light */
+
   --font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
 .dark {
-  --color-background-light: 220 20% 10%;
-  /* Force use dark vars as primary */
+  --color-background-light: 0 0% 0%;
+  /* True OLED Black */
   --color-text-light: 220 20% 90%;
 
-  --glass-bg: rgba(30, 35, 45, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-bg: rgba(18, 18, 18, 0.65);
+  --glass-border: rgba(255, 255, 255, 0.06);
+  --glass-blur: 16px;
+
+  --color-surface: hsl(var(--color-surface-dark));
+  /* Dark mode surface */
+}
+
+/* Premium Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.5);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
 }
 
 * {
@@ -78,7 +112,13 @@ body {
   backdrop-filter: blur(var(--glass-blur));
   -webkit-backdrop-filter: blur(var(--glass-blur));
   border: 1px solid var(--glass-border);
-  border-radius: var(--radius-md);
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+  /* Top Highlight aka Inner Glow */
+  border-radius: 24px;
+  /* More modern rounding */
 }
 
 .dropdown-panel {
@@ -254,21 +294,30 @@ body {
 }
 
 /* Curved Mobile Navigation */
+/* Floating Dock Style */
 .mobile-nav-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: white;
-  width: 100%;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  width: calc(100% - 32px);
+  /* Floating width */
   height: 70px;
-  position: relative;
-  border-radius: 20px 20px 0 0;
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  bottom: 24px;
+  /* Floating from bottom */
+  left: 16px;
+  border-radius: 35px;
+  /* Fully rounded pill */
+  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .dark .mobile-nav-container {
-  background: hsl(var(--color-surface-dark));
-  border-top: 1px solid var(--glass-border);
+  background: rgba(20, 20, 20, 0.8);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
 }
 
 .nav-list {
@@ -448,4 +497,25 @@ body {
   animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
   opacity: 0;
   /* Start invisible, animation handles opacity */
+}
+
+/* Dropdown Responsive Logic (Moved from Component) */
+@media (min-width: 1025px) {
+  .mobile-only-select {
+    display: none !important;
+  }
+
+  .desktop-only-dropdown {
+    display: block !important;
+  }
+}
+
+@media (max-width: 1024px) {
+  .mobile-only-select {
+    display: block !important;
+  }
+
+  .desktop-only-dropdown {
+    display: none !important;
+  }
 }
