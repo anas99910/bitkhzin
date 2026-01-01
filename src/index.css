@@ -404,49 +404,17 @@ body {
   height: 70px;
   background: hsl(var(--color-primary));
   border-radius: 50%;
-  border: 6px solid hsl(var(--color-background-light));
-  /* Match body bg */
+  border: 6px solid transparent;
+  /* Removed solid border match */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  /* Add shadow for depth */
   transition: 0.5s;
   z-index: 15;
 }
 
 .dark .indicator {
-  border-color: hsl(var(--color-background-dark));
-  /* FIXED: Match Outer Body BG, not surface */
   background: hsl(var(--color-primary));
-}
-
-/* The Curved "Corners" */
-.indicator::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: -22px;
-  width: 20px;
-  height: 20px;
-  background: transparent;
-  border-top-right-radius: 20px;
-  box-shadow: 1px -10px 0 0 hsl(var(--color-background-light));
-}
-
-.dark .indicator::before {
-  box-shadow: 1px -10px 0 0 hsl(var(--color-background-dark));
-}
-
-.indicator::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  right: -22px;
-  width: 20px;
-  height: 20px;
-  background: transparent;
-  border-top-left-radius: 20px;
-  box-shadow: -1px -10px 0 0 hsl(var(--color-background-light));
-}
-
-.dark .indicator::after {
-  box-shadow: -1px -10px 0 0 hsl(var(--color-background-dark));
+  border-color: transparent;
 }
 
 /* Micro-Animations Utility Classes */
