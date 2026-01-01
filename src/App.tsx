@@ -235,10 +235,26 @@ function App() {
               </Button>
 
               {
-                isInstallable && (
+                /* Always show install button if not standalone */
+                (!window.matchMedia('(display-mode: standalone)').matches) && (
                   <>
                     <hr style={{ margin: '16px 0', borderColor: 'var(--glass-border)', opacity: 0.3 }} />
-                    <Button onClick={promptToInstall} style={{ width: '100%', display: 'flex', justifyContent: 'center', gap: '8px' }}>
+                    <Button
+                      onClick={() => {
+                        if (isInstallable) {
+                          promptToInstall();
+                        } else {
+                          // Fallback Logic
+                          const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+                          if (isIOS) {
+                            showToast("Tap 'Share' (square with arrow) ↓ then 'Add to Home Screen'", 'info');
+                          } else {
+                            showToast("Tap the browser menu (⋮) then select 'Install App'", 'info');
+                          }
+                        }
+                      }}
+                      style={{ width: '100%', display: 'flex', justifyContent: 'center', gap: '8px' }}
+                    >
                       <Download size={18} />
                       Install on this device
                     </Button>
