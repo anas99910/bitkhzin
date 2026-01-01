@@ -9,20 +9,40 @@ interface IBeforeInstallPromptEvent extends Event {
     prompt(): Promise<void>;
 }
 
+// Global variable to capture the event if it fires before the hook is used
+let globalDeferredPrompt: IBeforeInstallPromptEvent | null = null;
+
+// Immediately listen for the event
+if (typeof window !== 'undefined') {
+    window.addEventListener('beforeinstallprompt', (e) => {
+        // Prevent the mini-infobar from appearing on mobile
+        e.preventDefault();
+        // Stash the event so it can be triggered later.
+        globalDeferredPrompt = e as IBeforeInstallPromptEvent;
+        console.log("Captured beforeinstallprompt interactively");
+    });
+}
+
 export const useInstallPrompt = () => {
-    const [deferredPrompt, setDeferredPrompt] = useState<IBeforeInstallPromptEvent | null>(null);
-    const [isInstallable, setIsInstallable] = useState(false);
+    const [deferredPrompt, setDeferredPrompt] = useState<IBeforeInstallPromptEvent | null>(globalDeferredPrompt);
+    const [isInstallable, setIsInstallable] = useState(!!globalDeferredPrompt);
 
     useEffect(() => {
         const handler = (e: Event) => {
-            // Prevent the mini-infobar from appearing on mobile
             e.preventDefault();
-            // Stash the event so it can be triggered later.
-            setDeferredPrompt(e as IBeforeInstallPromptEvent);
+            const event = e as IBeforeInstallPromptEvent;
+            setDeferredPrompt(event);
             setIsInstallable(true);
+            globalDeferredPrompt = event; // Update global ref
         };
 
         window.addEventListener('beforeinstallprompt', handler);
+
+        // If we already have one globally, ensure state is synced (double check)
+        if (globalDeferredPrompt) {
+            setDeferredPrompt(globalDeferredPrompt);
+            setIsInstallable(true);
+        }
 
         return () => {
             window.removeEventListener('beforeinstallprompt', handler);
@@ -30,13 +50,17 @@ export const useInstallPrompt = () => {
     }, []);
 
     const promptToInstall = async () => {
-        if (!deferredPrompt) return;
+        const promptEvent = deferredPrompt || globalDeferredPrompt;
+        if (!promptEvent) {
+            console.log("No deferred prompt found");
+            return;
+        }
 
         // Show the install prompt
-        await deferredPrompt.prompt();
+        await promptEvent.prompt();
 
         // Wait for the user to respond to the prompt
-        const { outcome } = await deferredPrompt.userChoice;
+        const { outcome } = await promptEvent.userChoice;
 
         if (outcome === 'accepted') {
             console.log('User accepted the install prompt');
@@ -46,6 +70,7 @@ export const useInstallPrompt = () => {
 
         // We've used the prompt, and can't use it again, throw it away
         setDeferredPrompt(null);
+        globalDeferredPrompt = null;
         setIsInstallable(false);
     };
 
