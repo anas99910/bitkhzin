@@ -6,6 +6,7 @@ import { Card } from '../ui/Card';
 import { Toast } from '../ui/Toast';
 import { BarcodeScanner } from './BarcodeScanner';
 import { useCategories } from '../../context/CategoriesContext';
+import { fetchProduct } from '../../lib/openfoodfacts';
 
 interface InventoryFormProps {
     onSubmit: (item: Omit<InventoryItem, 'id' | 'createdAt' | 'updatedAt'>) => void;
@@ -25,21 +26,36 @@ export const InventoryForm: React.FC<InventoryFormProps> = ({ onSubmit, onCancel
     const [showScanner, setShowScanner] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { categories } = useCategories();
-    const [toast, setToast] = useState<{ show: boolean; msg: string; type: 'success' | 'error' }>({
+    const [toast, setToast] = useState<{ show: boolean; msg: string; type: 'success' | 'error' | 'info' }>({
         show: false,
         msg: '',
         type: 'success'
     });
 
-    const showToast = (msg: string, type: 'success' | 'error' = 'success') => {
+    const showToast = (msg: string, type: 'success' | 'error' | 'info' = 'success') => {
         setToast({ show: true, msg, type });
         setTimeout(() => setToast(prev => ({ ...prev, show: false })), 3000);
     };
 
-    const handleScanResult = (result: string) => {
+    const handleScanResult = async (result: string) => {
         setBarcode(result);
         setShowScanner(false);
-        showToast('Barcode scanned successfully!');
+        showToast('Looking up product...', 'info');
+
+        try {
+            const product = await fetchProduct(result);
+            if (product) {
+                setName(product.name);
+                if (product.category) {
+                    setCategory(product.category); // You might want to map this to your existing categories or add it as custom
+                }
+                showToast(`Found: ${product.name}`, 'success');
+            } else {
+                showToast('Product not found, please enter manually', 'info');
+            }
+        } catch (e) {
+            showToast('Could not fetch product details', 'error');
+        }
     };
 
     const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
