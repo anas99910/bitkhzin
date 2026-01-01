@@ -235,27 +235,7 @@ function App() {
                 Log Out
               </Button>
 
-              {
-                /* Always show install button if not standalone */
-                (!window.matchMedia('(display-mode: standalone)').matches) && (
-                  <>
-                    <hr style={{ margin: '16px 0', borderColor: 'var(--glass-border)', opacity: 0.3 }} />
-                    <Button
-                      onClick={() => promptToInstall()}
-                      style={{
-                        width: '100%',
-                        display: 'flex',
-                        justifyContent: 'center',
-                        gap: '8px',
-                        opacity: isInstallable ? 1 : 0.5
-                      }}
-                    >
-                      <Download size={18} />
-                      Install on this device
-                    </Button>
-                  </>
-                )
-              }
+              <InstallButton />
 
               <hr style={{ margin: '16px 0', borderColor: 'var(--glass-border)', opacity: 0.3 }} />
 
